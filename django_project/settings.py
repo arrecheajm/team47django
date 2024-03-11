@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -31,6 +30,7 @@ CSRF_TRUSTED_ORIGINS = ["https://*.replit.dev", "https://*.replit.app"]
 # Application definition
 
 INSTALLED_APPS = [
+    'anymail',
     'airline_app',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_project.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -81,25 +81,23 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
+    #     {
+    #         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    #     },
     # {
     #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    # },
+    #     {
+    #         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    #     },
+    #     {
+    #         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    #     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -112,7 +110,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -124,7 +121,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = '/'
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
+# ANYMAIL
+POSTMARK_SERVER_TOKEN = 'ccf33d7b-8cec-480a-a5c6-d98d6738cc6b'
+EMAIL_BACKEND = 'anymail.backends.postmark.EmailBackend'
+DEFAULT_FROM_EMAIL = 'gjd190000@utdallas.edu'
+
+# Set session expiry to XXX seconds. Session must
+# be saved on every request for expiry to reset.   - Gavin
+SESSION_COOKIE_AGE = 1800    
+SESSION_SAVE_EVERY_REQUEST = True
+

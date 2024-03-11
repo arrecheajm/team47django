@@ -1,0 +1,112 @@
+<!--
+## [1.0.0] - 2024-02-24
+### Added
+- Bootstrap center alignment and buttons
+- Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<h1 class="p-5">The Team</h1>
+
+<!-- Page Content -->
+<div class="container">
+  <div class="row">
+    <!-- Huud -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow">
+        <img src="https://media.licdn.com/dms/image/C4E03AQFKFGWUpHieWg/profile-displayphoto-shrink_400_400/0/1606189789183?e=1714608000&v=beta&t=iw_iyZsg0LB6-m93vNq43h5z4hWO0f28OW0_DjxJ64Q" class="card-img-top" alt="...">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-0">
+          <a href="https://www.linkedin.com/in/huudahmad/">
+            <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+          Huud Ahmad</h5>
+          <div class="card-text text-black-50">
+            --
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Juan -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow">
+        <img src="https://media.licdn.com/dms/image/C4E03AQEeQ1VnHQjiEA/profile-displayphoto-shrink_800_800/0/1611768714817?e=1714608000&v=beta&t=nZqxxjgKsMSJKJvvs8gEvPmLMoo-IFGi1YrjYgy6Kq8" class="card-img-top" alt="...">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-0">
+            <a href="https://www.linkedin.com/in/juan-arrechea/">
+              <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+            Juan Arrechea</h5>
+          <div class="card-text text-black-50">
+            Software Project Manager
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Albert -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow">
+        <img src="https://media.licdn.com/dms/image/C5603AQGTypJHUj6XLg/profile-displayphoto-shrink_400_400/0/1662943320525?e=1714608000&v=beta&t=LdYaYppLzh89YS8ZU0M4Yp5oET-e6OXyau8-bVL7bu4" class="card-img-top" alt="...">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-0">
+            <a href="https://www.linkedin.com/in/alb147140/">
+              <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+          Albert Baker</h5>
+          <div class="card-text text-black-50">
+            Data Analysis
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- Gavin -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow">
+        <img src="https://media.licdn.com/dms/image/D5603AQEfxQ__LEYDXg/profile-displayphoto-shrink_400_400/0/1708921781438?e=1714608000&v=beta&t=3LgYAPZKouet-77xy_22TEdwybUtYnvaC2SKx7dBrfI" class="card-img-top" alt="...">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-0">
+          <a href="https://www.linkedin.com/in/gavin-dunnett">
+          <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+          Gavin Dunnett</h5>
+          <div class="card-text text-black-50">
+            Web Developer
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Javier -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-0 shadow">
+        <img src="https://media.licdn.com/dms/image/D5603AQGV07ZRTNDuRg/profile-displayphoto-shrink_400_400/0/1690921892667?e=1714608000&v=beta&t=6gdbCAXpoLtiQG7Qw3PLw6wfsTQJKBBERrFcywtJ46w" class="card-img-top" alt="...">
+          <div class="card-body text-center">
+            <h5 class="card-title mb-0">
+            <a href="https://www.linkedin.com/in/javier-figueroa-35a408263/">
+            <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+            Javier Figueroa</h5>
+            <div class="card-text text-black-50">
+              --
+            </div>
+          </div>
+        </div>
+      </div>
+  <!-- Sai -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-0 shadow">
+      <img src="https://media.licdn.com/dms/image/C4E03AQFBSmOfpyA46g/profile-displayphoto-shrink_400_400/0/1634759293349?e=1714608000&v=beta&t=-QhBWteMAhHjc1efPcNwk9FR-bqkqmkPlLcwJXfm38E" class="card-img-top" alt="...">
+      <div class="card-body text-center">
+        <h5 class="card-title mb-0">
+          <a href="https://www.linkedin.com/in/saipranithkasam/">
+            <img src="{% static 'linkedin.svg' %}" alt="..."></a>
+        Sai Kasam</h5>
+        <div class="card-text text-black-50">
+          --
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.row -->
+
+</div>
+<!-- /.container -->
+{% endblock %}

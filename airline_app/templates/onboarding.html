@@ -1,0 +1,25 @@
+<!--
+## [1.0.0] - 2024-02-24
+### Added
+- Bootstrap center alignment and buttons
+- Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="p-5">Registration Successful</h1>
+
+    <!-- Hello, {{ user.username|default:'Guest' }}! -->
+
+    {% if user.is_authenticated %}
+        <p class="lead">
+        Confirmation email sent to <p class="text-success">{{ email|default:"someone@domain.com" }}</p>
+        Your account has been successfully created and you are
+        logged in. You can now start using the Airline Simulator.
+        Start by giving your Airline a name.
+        </p>
+    {% else %}
+        You must be logged in to view this page.
+    {% endif %}
+{% endblock %}

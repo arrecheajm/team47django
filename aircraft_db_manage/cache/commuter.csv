@@ -1,0 +1,20 @@
+Model,Seats,Sector,Fuel burn,Fuel per seat
+Antonov An-148 (241 nmi),89,300,4.23,5.95
+Antonov An-158 (241 nmi),99,300,4.34,5.47
+ATR 42-500,48,300,1.26,3.15
+ATR 72-500,72,300,1.67,2.89
+ATR 72-500,70,300,1.42,2.53
+ATR 72-600,72,300,1.56,2.79
+Beechcraft 1900D (226 nm),19,300,1.00,6.57
+Bombardier CRJ100,50,300,2.21,5.50
+Bombardier CRJ200,50,300,2.18,5.43
+Bombardier CRJ700,70,300,2.95,5.25
+Bombardier CRJ900,88,300,3.47,4.91
+Bombardier Dash 8 Q400,78,300,2.16,3.46
+Dornier 228,19,300,0.94,6.22
+Dornier 328,32,300,1.22,4.76
+Embraer Brasilia,30,300,0.92,3.82
+Embraer ERJ-135ER (309 nmi),37,300,1.64,5.52
+Embraer ERJ-145ER (305 nmi),50,300,1.76,4.37
+Saab 340,32,300,1.1,4.29
+Saab 2000,50,300,1.75,4.39

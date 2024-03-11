@@ -1,22 +1,23 @@
 <!--
-## [1.0.0] - 2024-02-20
+## [1.0.0] - 2024-02-23
 ### Added
-- commented out password_reset (line 20) until email server is implemented.
+- Bootstrap center alignment and buttons
 - Initial version. 
 -->
 
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Login</h2>
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Login">
-</form>
-
-<a href="{% url 'dashboard' %}">Back to dashboard</a>
-<!-- <a href="{% url 'password_reset' %}">Reset password</a> -->
-<a href="{% url 'register' %}">Register</a>
+    <h1 class="p-5">Login</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div>
+        <a href="{% url 'password_reset' %}">Forgot password?</a>
+        </div>
+        <input type="submit" class="btn btn-primary mt-4 mb-4" value='SIGN IN'>
+        <div>
+        Not a member? <a href="{% url 'register' %}">Register</a>
+        </div>
+    </form>
 {% endblock %}

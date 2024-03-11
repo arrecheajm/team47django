@@ -1,23 +1,18 @@
 <!--
-## [1.0.0] - 2024-02-20
+## [1.0.0] - 2024-02-24
 ### Added
+- Bootstrap center alignment and buttons
 - Initial version.
 -->
 
 {% extends 'base.html' %}
 
 {% block content %}
-Hello, {{ user.username|default:'Guest' }}!
-
-<div>
+    <h1 class="p-5">Dashboard</h1>
     {% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="post">
-      {% csrf_token %}
-      <button type="submit">Log Out</button>
-    </form>
+        <a href="{% url 'password_reset' %}" class="btn btn-warning">Password Reset</a>
         <a href="{% url 'password_change' %}">Change password</a>
     {% else %}
-        <a href="{% url 'login' %}">Login</a>
+        You must be logged in to view this page.
     {% endif %}
-</div>
 {% endblock %}

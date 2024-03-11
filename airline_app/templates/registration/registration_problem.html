@@ -1,0 +1,14 @@
+<!--
+## [1.0.0] - 2024-02-21
+### Added
+- Initial version. 
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="p-5">Registration Problem</h1>
+<h3>{{ message }} </h3>
+
+<a href="{% url 'register' %}">Back to Registeration</a>
+{% endblock %}

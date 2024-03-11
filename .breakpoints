@@ -1,0 +1,20 @@
+{
+  "files": {
+    "EconomicModel/econ_model.py": [
+      {
+        "id": "b8b37779-ba31-416a-b2a9-0c2663bec8cc",
+        "line": 14,
+        "version": 1025,
+        "index": 338
+      }
+    ],
+    "django_project/settings.py": [
+      {
+        "id": "1e5065f4-55d9-4dea-ab93-6e4a197734dc",
+        "line": 12,
+        "version": 401,
+        "index": 314
+      }
+    ]
+  }
+}
