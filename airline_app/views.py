@@ -1,6 +1,7 @@
 '''
-## [1.0.0] - 2024-02-24
+## [1.0.0] - 2024-03-22
 ### Added
+- added verify email to register view.
 - email already taken check.
 - about team view.
 - onboarding view.
@@ -15,7 +16,7 @@
 ### Changed
 - "register.html" to "registration/register.html"
 '''
-
+from verify_email.email_handler import send_verification_email
 from django_project.settings import DEFAULT_FROM_EMAIL
 from django.core.mail import send_mail
 from django.contrib.auth import login
@@ -73,8 +74,9 @@ def register(request):
                 {'message': 'Password is too short. Minimum length is 8'})
 
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            inactive_user = send_verification_email(request, form)
+            # user = form.save()
+            login(request, inactive_user)
             send_welcome_email(request)
             return render(request, 'onboarding.html', {'email': email})
         else:

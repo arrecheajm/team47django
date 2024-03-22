@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.jq.bin
     pkgs.apacheHttpd
     pkgs.zlib
     pkgs.xcodebuild

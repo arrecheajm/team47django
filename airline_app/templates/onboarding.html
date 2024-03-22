@@ -14,10 +14,9 @@
 
     {% if user.is_authenticated %}
         <p class="lead">
-        Confirmation email sent to <p class="text-success">{{ email|default:"someone@domain.com" }}</p>
+        Activation email sent to <p class="text-success">{{ email|default:"someone@domain.com" }}</p>
         Your account has been successfully created and you are
-        logged in. You can now start using the Airline Simulator.
-        Start by giving your Airline a name.
+        logged in; but you must activate your account using the email we just sent.
         </p>
     {% else %}
         You must be logged in to view this page.

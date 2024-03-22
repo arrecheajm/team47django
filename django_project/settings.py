@@ -30,6 +30,7 @@ CSRF_TRUSTED_ORIGINS = ["https://*.replit.dev", "https://*.replit.app"]
 # Application definition
 
 INSTALLED_APPS = [
+    'verify_email.apps.VerifyEmailConfig',
     'anymail',
     'airline_app',
     'django.contrib.admin',
@@ -122,6 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = '/registration/login' #necsesary for verify email app
 
 # ANYMAIL
 POSTMARK_SERVER_TOKEN = 'ccf33d7b-8cec-480a-a5c6-d98d6738cc6b'
@@ -130,6 +132,6 @@ DEFAULT_FROM_EMAIL = 'gjd190000@utdallas.edu'
 
 # Set session expiry to XXX seconds. Session must
 # be saved on every request for expiry to reset.   - Gavin
-SESSION_COOKIE_AGE = 1800    
+SESSION_COOKIE_AGE = 30 * 60
 SESSION_SAVE_EVERY_REQUEST = True
-
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

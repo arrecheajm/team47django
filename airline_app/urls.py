@@ -30,6 +30,7 @@ Including another URLconf
 """
 
 urlpatterns = [
+    path('verification/', include('verify_email.urls')),
     path('about_team/', views.about_team, name='about_team'),
     path('onboarding/', views.onboarding, name='onboarding'),
     path('registration/register/', views.register, name='register'),
