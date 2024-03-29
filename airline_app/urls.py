@@ -1,4 +1,9 @@
 '''
+## [1.0.1] - 2024-03-25
+### Added
+- Aircraft lookup page
+'''
+'''
 ## [1.0.0] - 2024-02-24
 ### Added
 - about team.
@@ -11,7 +16,6 @@
 
 from django.urls import path, include
 from . import views
-
 """
 URL configuration for airline_app.
 
@@ -34,6 +38,10 @@ urlpatterns = [
     path('about_team/', views.about_team, name='about_team'),
     path('onboarding/', views.onboarding, name='onboarding'),
     path('registration/register/', views.register, name='register'),
+    path("aircraft/search/", views.AircraftFilterView, name='aircraft_search'),
+    path("aircraft/feedback/",
+         views.AircraftFeedbackForm,
+         name='aircraft_feedback'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.dashboard, name='dashboard'),
 ]

@@ -1,7 +1,7 @@
 <!--
-## [1.0.0] - 2024-02-24
-### Added
-- Bootstrap center alignment and buttons
+## [1.0.0] - 2024-03-29
+- Email verification text added.
+- Bootstrap center alignment and buttons added.
 - Initial version.
 -->
 
@@ -9,16 +9,17 @@
 
 {% block content %}
     <h1 class="p-5">Registration Successful</h1>
-
-    <!-- Hello, {{ user.username|default:'Guest' }}! -->
-
+    <p class="lead">
+        Email verification sent to <p class="text-success">{{ email|default:"someone@domain.com" }}
+        You must use the link to activate your account.
+    </p>
     {% if user.is_authenticated %}
         <p class="lead">
-        Activation email sent to <p class="text-success">{{ email|default:"someone@domain.com" }}</p>
-        Your account has been successfully created and you are
-        logged in; but you must activate your account using the email we just sent.
         </p>
     {% else %}
+
+        <p class="lead">
+        </p>
         You must be logged in to view this page.
     {% endif %}
 {% endblock %}

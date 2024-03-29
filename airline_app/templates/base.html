@@ -1,10 +1,17 @@
 <!--
+## [1.0.1 - 2024-03-25
+### Added
+- Link to aircraft lookup page
+-->
+
+<!--
 ## [1.0.0] - 2024-02-23
 ### Added
 - Bootstrap top bar.
 - Bootstrap CSS link.
 - Initial version. 
 -->
+
 
 {% load static %}
 
@@ -37,6 +44,7 @@
         <a class="nav-link" href="#">Fleet</a>
         <a class="nav-link" href="#">Operations</a>
         <a class="nav-link" href="#">Airports</a>
+        <a class="nav-link" href="{% url 'aircraft_search' %}">Aircraft</a>
         <li class="nav-item dropdown">
           <a class="nav-link btn-success dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             About</a>

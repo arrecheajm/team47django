@@ -6,7 +6,7 @@
 # - Fuel price trends
 
 # TO DO:
-# Decide on data structure for geopolical events
+#Decide on data structure for geopolical events
 # Find data source for fuel prices.
 # Properly implement fuel price indicator
 # Clean data frames

@@ -11,6 +11,8 @@
 
 # You can comment out the functions in __main__ depending on your needs.
 
+# Scheduled data review cleanup: Beginning of every month.
+
 #--ISSUES--#
 # - Some sectors are stored in aircraft name. Example: Antonov An-148 (241 nmi).
 # - These need to be changed after importing to the database.

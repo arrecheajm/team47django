@@ -13,3 +13,7 @@ class Aircraft(models.Model):
   sector = models.IntegerField()
   fuelburn = models.DecimalField(max_digits=8, decimal_places=2)
   fuelperseat = models.DecimalField(max_digits=8, decimal_places=2)
+
+
+class AircraftFeedback(models.Model):
+  message = models.CharField(max_length=200)

@@ -123,7 +123,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = '/registration/login' #necsesary for verify email app
+LOGIN_URL = 'login'  #necsesary for verify email app
 
 # ANYMAIL
 POSTMARK_SERVER_TOKEN = 'ccf33d7b-8cec-480a-a5c6-d98d6738cc6b'

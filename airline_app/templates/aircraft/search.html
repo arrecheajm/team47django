@@ -1,0 +1,87 @@
+<!--
+## [1.0.0] - 2024-02-24
+### Added
+- Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+      <main role="main" class="container">
+
+        <h3>Filter Aircraft</h3>
+        <form method="GET" action=".">
+          <div class="form-row">
+              <div class="form-group col-12">
+                  <div class="input-group">
+                      <input class="form-control py-2 border-right-0 border" type="search" name="model" placeholder="Model name contains..." />
+                      <span class="input-group-append">
+                          <div class="input-group-text bg-transparent">
+                              <i class="fa fa-search"></i>
+                          </div>
+                      </span>
+                  </div>
+              </div>        
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="seatsMin">Minimum Seat Count</label>
+              <input type="number" min=0 class="form-control" id="seatsMin" placeholder="0" name="seats_min">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="seatsMax">Maximum Seat Count</label>
+              <input type="number" min=0 class="form-control" id="seatsMax" placeholder="10000?" name="seats_max">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="sectorMin">Minimum Sector</label>
+              <input type="number" min=0 class="form-control" id="seactorMin" placeholder="0" name="sector_min">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="sectorMax">Maximum Sector</label>
+              <input type="number" min=0 class="form-control" id="seactorMax" placeholder="10000?" name="sector_max">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="fuelBurnMin">Minimum Fuel Burn</label>
+              <input type="number" min=0 class="form-control" id="fuelBurnMin" placeholder="0" name="fuelburn_min">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="fuelBurnMax">Maximum Fuel Burn</label>
+              <input type="number" min=0 class="form-control" id="fuelBurnMax" placeholder="10000?" name="fuelburn_max">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="fuelPerSeatMin">Minimum Fuel Burn Per Seat</label>
+              <input type="number" min=0 class="form-control" id="fuelPerSeatMin" placeholder="0" name="fuelperseat_min">
+            </div>
+            <div class="form-group col-md-2 col-lg-2">
+              <label for="fuelPerSeatMax">Maximum Fuel Burn Per Seat</label>
+              <input type="number" min=0 class="form-control" id="fuelPerSeatMax" placeholder="10000?" name="fuelperseat_max">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <hr />
+
+        <div class="row">
+          <ul>
+            {% for aircraft in queryset %}
+              <li>
+                {{ aircraft.model }}
+                <span>Seats: {{ aircraft.seats }}</span>
+                <span>Sector: {{ aircraft.sector }}</span>
+                <span>Fuel Burn: {{ aircraft.fuelburn }}</span>
+                <span>Fuel Per Seat: {{ aircraft.fuelperseat }}</span>
+              </li>
+              <hr />
+            {% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3>Issues? <a href="{% url 'aircraft_feedback' %}">Submit feedback here</a></h3>
+        </div>
+      </main>
+    {% else %}
+      <h1 class="p-5">You must be logged in to view this page.</h1>
+    {% endif %}
+{% endblock %}

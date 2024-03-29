@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+      <main role="main" class="container">
+        <h3>Aircraft Feedback</h3>
+        <p>
+          <form method='post'>
+              {{ formset }}
+          </form>
+        </p>
+        <hr />
+      </main>
+    {% else %}
+      <h1 class="p-5">You must be logged in to view this page.</h1>
+    {% endif %}
+{% endblock %}
