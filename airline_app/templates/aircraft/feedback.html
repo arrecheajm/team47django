@@ -3,12 +3,28 @@
 {% block content %}
     {% if user.is_authenticated %}
       <main role="main" class="container">
+        {% if success %}
+          <a>Feedback Sent!</a>
+        {% endif %}
         <h3>Aircraft Feedback</h3>
         <p>
-          <form method='post'>
-              {{ formset }}
-          </form>
-        </p>
+          <form method="GET" action=".">
+            <div class="form-row">
+                <div class="form-group col-12">
+                    <div class="input-group">
+                        <input class="form-control py-2 border-right-0 border" type="search" name="feedback" placeholder="Boeing 737-800 - Seats - Should be 162." />
+                        <span class="input-group-append">
+                            <div class="input-group-text bg-transparent">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </span>
+                    </div>
+                </div>        
+            </div>
+          </p>
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+
         <hr />
       </main>
     {% else %}

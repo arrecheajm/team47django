@@ -40,7 +40,7 @@ urlpatterns = [
     path('registration/register/', views.register, name='register'),
     path("aircraft/search/", views.AircraftFilterView, name='aircraft_search'),
     path("aircraft/feedback/",
-         views.AircraftFeedbackForm,
+         views.AircraftFeedbackView,
          name='aircraft_feedback'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.dashboard, name='dashboard'),

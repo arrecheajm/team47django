@@ -30,7 +30,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 import re
-from .models import Aircraft
+from .models import Aircraft, AircraftFeedback
 from airline_app.forms import AircraftFeedbackForm
 from django.forms import modelformset_factory
 
@@ -83,16 +83,15 @@ def AircraftFilterView(request):
 
 
 def AircraftFeedbackView(request):
-  AirCraftFeedbackFormSet = modelformset_factory(AircraftFeedbackForm,
-                                                 fields=["message"])
-  if request.method == "POST":
-    formset = AirCraftFeedbackFormSet(request.POST, request.FILES)
-    if formset.is_valid():
-      formset.save()
-      # do something.
-  else:
-    formset = AirCraftFeedbackFormSet()
-  return render(request, "aircraft/feedback.html", {"formset": formset})
+  context = {'success': False}
+  message = request.GET.get('feedback')
+  if is_valid_queryparam(message):
+    feedback = AircraftFeedback()
+    feedback.message = message
+    feedback.save()
+    context['success'] = True
+
+  return render(request, "aircraft/feedback.html", context)
 
 
 # Create your views here.
