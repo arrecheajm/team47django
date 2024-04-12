@@ -135,3 +135,9 @@ DEFAULT_FROM_EMAIL = 'gjd190000@utdallas.edu'
 SESSION_COOKIE_AGE = 30 * 60
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Django Verify Email settings
+# https://pypi.org/project/Django-Verify-Email/
+EXPIRE_AFTER = "1d" # Will expire after one day from link generation
+MAX_RETRIES = 10
+

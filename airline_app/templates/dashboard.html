@@ -1,5 +1,5 @@
 <!--
-## [1.0.0] - 2024-03-29
+- Apr 5, 2024. Added resend verification email link.
 - Login link added.
 - user.is_active clause to resend activation email added.
 - Bootstrap center alignment and buttons
@@ -20,7 +20,7 @@
         <a href="{% url 'login' %}" class="btn btn-primary">LOGIN</a>
     {% endif %}
     {% if user.is_active is False %}
-        <p class=lead><a href="{% url 'dashboard' %}">***TODO*** Resend activation email</a></p>
+        <p class=lead><a href="{% url 'request-new-link-from-email' %}">Resend verification email</a></p>
     {% endif %}
     
 {% endblock %}

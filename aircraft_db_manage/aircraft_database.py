@@ -12,12 +12,17 @@
 # You can comment out the functions in __main__ depending on your needs.
 
 # Scheduled data review cleanup: Beginning of every month.
-
+# Data review cleanup includes using test_database on lastest csv (can be exported from admin).
 #--ISSUES--#
 # - Some sectors are stored in aircraft name. Example: Antonov An-148 (241 nmi).
 # - These need to be changed after importing to the database.
 # - At time of writing, it's currently only seven entries.
 '''
+## [1.0.1] - 2024-03-04
+### Added
+- a.test_database() tests aircraft csv for correct datatypes.
+- Current database can be checked by exporting it to csv from admin and checking it with test_database().
+
 ## [1.0.0] - 2024-03-04
 ### Added
 - a.cache_aircraft_data() - Store data from sources into cache.
@@ -31,6 +36,7 @@ import os
 import re
 import time
 import pandas as pd
+import sys
 
 # Various sources from wikipedia
 aircraft_src = 'https://en.wikipedia.org/wiki/List_of_commercial_jet_airliners'
@@ -125,11 +131,51 @@ class Aircraft_Database:
     self.cache_aircraft()
     self.cache_data()
 
+  def test_database(self, file_name):
+    df = pd.read_csv('db/' + file_name)
+    passed = True
+    for s in df['model']:
+      if isinstance(s, str):
+        continue
+      else:
+        print(s)
+        passed = False
+    for s in df['seats']:
+      if isinstance(s, int):
+        continue
+      else:
+        print(s)
+        passed = False
+    for s in df['sector']:
+      if isinstance(s, int):
+        continue
+      else:
+        print(s)
+        passed = False
+    for s in df['fuelburn']:
+      if isinstance(s, float):
+        continue
+      else:
+        print(s)
+        passed = False
+    for s in df['fuelperseat']:
+      if isinstance(s, float):
+        continue
+      else:
+        print(s)
+        passed = False
+
+    print('Finished')
+    if passed:
+      print('Result: Passed')
+    else:
+      print('Result: Failed')
+
 
 if __name__ == "__main__":
   a = Aircraft_Database()
-
+  a.test_database('aircraft_db_1709577716.184871.csv')
   #--Functions--#
   #a.cache_aircraft_data()
   #a.clean_data()
-  a.create_aircraft_db_csv()
+  #a.create_aircraft_db_csv()\

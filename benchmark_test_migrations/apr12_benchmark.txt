@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev (be patient).....done
+
+
+Server Software:        
+Server Hostname:        33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev
+Server Port:            443
+SSL/TLS Protocol:       TLSv1.3,TLS_AES_128_GCM_SHA256,2048,128
+Server Temp Key:        ECDH P-521 521 bits
+TLS Server Name:        33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev
+
+Document Path:          /
+Document Length:        7134 bytes
+
+Concurrency Level:      10
+Time taken for tests:   1.330 seconds
+Complete requests:      100
+Failed requests:        0
+Non-2xx responses:      100
+Total transferred:      734700 bytes
+HTML transferred:       713400 bytes
+Requests per second:    75.21 [#/sec] (mean)
+Time per request:       132.965 [ms] (mean)
+Time per request:       13.296 [ms] (mean, across all concurrent requests)
+Transfer rate:          539.60 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:       19   37  13.7     33      79
+Processing:    60   83  21.5     75     183
+Waiting:       59   77  18.1     72     183
+Total:         83  119  28.4    111     240
+
+Percentage of the requests served within a certain time (ms)
+  50%    111
+  66%    123
+  75%    136
+  80%    139
+  90%    155
+  95%    182
+  98%    210
+  99%    240
+ 100%    240 (longest request)
