@@ -17,3 +17,7 @@ deploymentTarget = "gce"
 [[ports]]
 localPort = 3000
 externalPort = 80
+
+[auth]
+pageEnabled = false
+buttonEnabled = false

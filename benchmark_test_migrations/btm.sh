@@ -10,11 +10,11 @@ cat "$1_benchmark.txt"
 read -p "Press enter to continue.." -n1
 
 cd ..
-echo '*********** Starting makemigrations...'
-python3 manage.py makemigrations > "benchmark_test_migrations/$1_migrations.txt"
-cat "benchmark_test_migrations/$1_migrations.txt"
-echo '*********** Finished makemigrations.'
-read -p "Press enter to continue.." -n1
+# echo '*********** Starting makemigrations...'
+# python3 manage.py makemigrations > "benchmark_test_migrations/$1_migrations.txt"
+# cat "benchmark_test_migrations/$1_migrations.txt"
+# echo '*********** Finished makemigrations.'
+# read -p "Press enter to continue.." -n1
 
 echo '*********** Starting tests...'
 python3 manage.py test &> "benchmark_test_migrations/$1_tests.txt"

@@ -10,15 +10,10 @@
 
 {% block content %}
     <h1 class="p-5">Dashboard</h1>
-    {% if user.is_authenticated %}
         <p class=lead><a href="{% url 'password_reset' %}">Password reset</a>
         If you forgot or lost your password, you can reset it.</p>
         <p class=lead><a href="{% url 'password_change' %}">Change password</a>
         You can change your password for securcity reasons.</p>
-    {% else %}
-        <p class="lead">You must be logged in to view this page</p>
-        <a href="{% url 'login' %}" class="btn btn-primary">LOGIN</a>
-    {% endif %}
     {% if user.is_active is False %}
         <p class=lead><a href="{% url 'request-new-link-from-email' %}">Resend verification email</a></p>
     {% endif %}

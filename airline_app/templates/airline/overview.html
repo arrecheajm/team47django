@@ -1,0 +1,52 @@
+<!--
+- apr 16, 2024. Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="p-5">Airline</h1>
+        <div class="container mt-4">
+            <div class="row">
+                <!-- <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="fs-1">+</div>
+                            <a href="#" class="btn btn-primary">Add</a>
+                        </div>
+                    </div>
+                </div> -->
+                {% for airline in airlines %}
+                <div class="col-sm-12 col-md-4 mb-4">
+                <!-- <form method="post" action="{% url 'fleet' %}"> -->
+                    <!-- {% csrf_token %} -->
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- <input type="hidden" name="aircraft_id" value={{ aircraft.id }}> -->
+                            <h5 class="card-title">{{ airline.name }}</h5>
+                            <h6 class="card-title">
+                                Owner: {{ airline.user.username }}</h6>
+                                Rating: {{ airline.rating }}
+                                <br>
+                            <p class="card-text">
+                                Designator: {{ airline.designator }}
+                                <br>
+                                Homebase: {{ airline.homebase }}
+                                <br>
+                                Revenue: ${{ airline.revenue }}
+                                <br>
+                                Costs: ${{ airline.costs }}</p>
+                            
+                            <p class="card-text"> </p>
+                            <!-- <a href="#" class="btn btn-primary">Details</a> -->
+                            <a href="{% url 'fleet' %}" class="btn btn-primary">Fleet</a>
+                            <!-- <button type="submit" class="btn btn-primary">Fleet</button> -->
+                            <!-- </form> -->
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+{% endblock %}

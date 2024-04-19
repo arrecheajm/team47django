@@ -1,0 +1,52 @@
+<!--
+## [1.0.0] - 2024-02-24
+### Added
+- Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <main role="main" class="container">
+    {% if queryset %}
+    <form method="POST" action= "{% url 'flights' %}">
+      <div class="row">
+        <ul>
+          {% for flight in queryset %}
+            <li>
+              <span>Flight number: {{ flight.number }}</span>
+              <span>Aircraft: {{ flight.aircraft.aircraft.model }}</span><br>
+              <span>Origin: {{ flight.origin.name }}</span>
+              <span>Destination: {{ flight.destination.name }}</span>
+              <span>Scheduled Depature: {{ flight.sch_departure_time }}</span>
+              <span>Scheduled Arrival: {{ flight.sch_arrival_time }}</span>
+              <span>Ticket Price: ${{ flight.ticket_price }}</span>
+            </li>
+            <hr />
+          {% endfor %}
+        </ul>
+        <form id="process_day" method="post" action="{% url 'flights' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Submit Schedule</button>
+        </form>
+      </div>
+    
+      <hr />
+
+      <!-- <h3>Edit flight</h3> -->
+      {{ form }}
+    </form>
+    {% else %}
+      <h3>{{ msg }}</h3>
+    {% endif %}
+    
+    {% if form %}
+      <form method="POST" action= "{% url 'flights' %}">
+        <h3>Edit flight</h3>
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit">
+      </form>
+    {% endif %}
+  </main>
+{% endblock %}

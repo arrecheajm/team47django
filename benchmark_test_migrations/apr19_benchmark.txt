@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev (be patient).....done
+
+
+Server Software:        WSGIServer/0.2
+Server Hostname:        33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev
+Server Port:            443
+SSL/TLS Protocol:       TLSv1.3,TLS_AES_128_GCM_SHA256,2048,128
+Server Temp Key:        ECDH P-521 521 bits
+TLS Server Name:        33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev
+
+Document Path:          /
+Document Length:        0 bytes
+
+Concurrency Level:      10
+Time taken for tests:   1.605 seconds
+Complete requests:      100
+Failed requests:        0
+Non-2xx responses:      100
+Total transferred:      52800 bytes
+HTML transferred:       0 bytes
+Requests per second:    62.32 [#/sec] (mean)
+Time per request:       160.472 [ms] (mean)
+Time per request:       16.047 [ms] (mean, across all concurrent requests)
+Transfer rate:          32.13 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:       18   42  20.7     36     130
+Processing:    61  104  23.6    109     176
+Waiting:       61  103  23.4    109     176
+Total:         86  146  30.2    143     236
+
+Percentage of the requests served within a certain time (ms)
+  50%    143
+  66%    153
+  75%    157
+  80%    163
+  90%    184
+  95%    221
+  98%    232
+  99%    236
+ 100%    236 (longest request)

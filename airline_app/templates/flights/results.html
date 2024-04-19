@@ -1,0 +1,58 @@
+<!--
+- apr 17, 2024. Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="p-5">Performance Summary</h1>
+        <div class="container mt-4">
+            <div class="row">
+                <!-- <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="fs-1">+</div>
+                            <a href="#" class="btn btn-primary">Add</a>
+                        </div>
+                    </div>
+                </div> -->
+                {% for flight in flights %}
+                <div class="col-sm-12 col-md-6 mb-2">
+                <!-- <form method="post" action="{% url 'fleet' %}"> -->
+                    <!-- {% csrf_token %} -->
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- <input type="hidden" name="aircraft_id" value={{ aircraft.id }}> -->
+                            <h5 class="card-title">
+                                {{ flight.number }}
+                                <br>
+                            </h5>
+                            <p class="card-text">
+                                Departed {{ flight.origin.location }} at {{ flight.act_departure_time }}
+                                <br>
+                                Arrived in {{ flight.destination.location }} at {{ flight.act_arrival_time }}
+                                <br>
+                                Distance flown: {{ flight.distance|floatformat:"0" }} miles
+                                <br>
+                                {{ flight.tickets_sold }} tickets sold at ${{ flight.ticket_price }} ea.
+                                <br>
+                                Revenue: ${{ flight.revenue|floatformat:"0" }}
+                                <br>
+                                Cost: ${{ flight.cost|floatformat:"0" }}
+                                <br>
+                                Final Rating: {{ flight.rating }}
+                
+
+                            <p class="card-text"> </p>
+                            <!-- <a href="#" class="btn btn-primary">Details</a> -->
+                            <!-- <a href="{% url 'fleet' %}" class="btn btn-primary">Fleet</a> -->
+                            <!-- <button type="submit" class="btn btn-primary">Buy</button> -->
+                            <!-- </form> -->
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+{% endblock %}

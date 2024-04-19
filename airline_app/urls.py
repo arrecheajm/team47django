@@ -4,8 +4,10 @@
 - Aircraft lookup page
 '''
 '''
-## [1.0.0] - 2024-02-24
+## [1.0.0] - 2024-04-17
 ### Added
+- aircraft path.
+- fleet path
 - about team.
 - register path.
 - accoutns path.
@@ -34,14 +36,21 @@ Including another URLconf
 """
 
 urlpatterns = [
-    path('verification/', include('verify_email.urls')),
-    path('about_team/', views.about_team, name='about_team'),
-    path('onboarding/', views.onboarding, name='onboarding'),
-    path('registration/register/', views.register, name='register'),
+    path('flights/overview', views.flights, name='flights'),
+    path('flights/results', views.flights, name='flights_results'),
+    path('airports/overview', views.airports, name='airports'),
+    path('airline/overview', views.airline, name='airline'),
+    path('aircraft/overview', views.aircraft, name='aircraft'),
     path("aircraft/search/", views.AircraftFilterView, name='aircraft_search'),
     path("aircraft/feedback/",
          views.AircraftFeedbackView,
          name='aircraft_feedback'),
+    path('fleet/overview', views.fleet, name='fleet'),
+    path('verification/', include('verify_email.urls')),
+    path('about_team/', views.about_team, name='about_team'),
+    path('onboarding/', views.onboarding, name='onboarding'),
+    path('registration/register/', views.register, name='register'),
+    path('flights/overview', views.flights, name='flights'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', views.dashboard, name='dashboard'),
 ]

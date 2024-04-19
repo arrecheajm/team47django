@@ -5,8 +5,8 @@
 '''
 
 from django.contrib.auth.forms import UserCreationForm
-from .models import AircraftFeedback
-from django import forms
+from .models import AircraftFeedback, Flight
+from django.forms import ModelForm
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -15,7 +15,17 @@ class CustomUserCreationForm(UserCreationForm):
     fields = UserCreationForm.Meta.fields + ("email", )
 
 
-class AircraftFeedbackForm(forms.ModelForm):
+class FlightForm(ModelForm):
+
+  class Meta:
+    model = Flight
+    fields = [
+        'aircraft', 'origin', 'destination', 'sch_arrival_time',
+        'sch_departure_time', 'ticket_price'
+    ]
+
+
+class AircraftFeedbackForm(ModelForm):
 
   class Meta:
     model = AircraftFeedback

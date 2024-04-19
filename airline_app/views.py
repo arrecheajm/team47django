@@ -1,26 +1,12 @@
-'''
-## [1.0.1] - 2024-03-25
-### Added
-- aircraft loopup page
-'''
-'''
-## [1.0.0] - 2024-03-22
-### Added
-- added verify email to register view.
-- email already taken check.
-- about team view.
-- onboarding view.
-- New account email.
-- Postmark email service.
-- passwords match check.
-- password length check.
-- invalid email check.
-- username already taken check.
-- register view.
-- dashboard view.
-### Changed
-- "register.html" to "registration/register.html"
-'''
+from .models import SimEngine
+from .models import Airport
+from .models import Airline
+from .models import Fleet
+from .models import Flight
+from .models import Aircraft
+from .models import AircraftFeedback
+from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponse
 from verify_email.email_handler import send_verification_email
 from django_project.settings import DEFAULT_FROM_EMAIL
 from django.core.mail import send_mail
@@ -30,9 +16,98 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 import re
-from .models import Aircraft, AircraftFeedback
 from airline_app.forms import AircraftFeedbackForm
 from django.forms import modelformset_factory
+from airline_app.forms import FlightForm
+from django.core.exceptions import ObjectDoesNotExist
+
+
+def airports(request):
+  airports = Airport.objects.all()
+  if request.method == 'GET':
+    return render(request, 'airports/overview.html', {'airports': airports})
+
+
+def aircraft(request):
+  aircrafts = Aircraft.objects.all()
+  if request.method == 'GET':
+    return render(request, 'aircraft/overview.html', {'aircrafts': aircrafts})
+
+
+@login_required
+def airline(request):
+  loggedin_user_id = request.user.id
+  airlines = Airline.objects.filter(user_id=loggedin_user_id)
+  if request.method == 'GET':
+    return render(request, 'airline/overview.html', {'airlines': airlines})
+
+
+@login_required
+def fleet(request):
+  loggedin_user_id = request.user.id
+  airline = Airline.objects.get(user_id=loggedin_user_id)
+  fleet = Fleet.objects.filter(airline=airline)
+  if request.method == 'GET':
+    return render(request, 'fleet/overview.html', {'fleet': fleet})
+  elif request.method == 'POST':
+    aircraft_id = request.POST.get('aircraft_id')
+    aircraft = Fleet.objects.get(id=aircraft_id)
+    return render(request, 'fleet/detail.html', {'aircraft': aircraft})
+
+
+@login_required
+def flights(request):
+  loggedin_user_id = request.user.id
+  if request.method == 'POST':
+    form = FlightForm(request.POST)
+    if form.is_valid():
+      new_flight = Flight()
+      new_flight.aircraft = form.cleaned_data['aircraft']
+      new_flight.airline = new_flight.aircraft.airline
+      new_flight.origin = form.cleaned_data['origin']
+      new_flight.destination = form.cleaned_data['destination']
+      new_flight.sch_arrival_time = form.cleaned_data['sch_arrival_time']
+      new_flight.sch_departure_time = form.cleaned_data['sch_departure_time']
+      new_flight.ticket_price = form.cleaned_data['ticket_price']
+      # Fails due to actual times not null check failing.
+      #new_flight.save()
+      pass
+    else:
+      print("Didn't work.")
+
+  # Check if the user has an airline associated with their account.
+  try:
+    airline = Airline.objects.get(user_id=loggedin_user_id)
+  except ObjectDoesNotExist:
+    msg = 'You do not have an Airline.'
+    return render(request, 'flights/overview.html', {
+        'queryset': None,
+        'msg': msg
+    })
+
+  flights = Flight.objects.filter(airline=airline)
+  if not flights:
+    msg = 'You have no fleet.'
+    context = {
+        'queryset': None,
+        'msg': msg,
+    }
+    if Fleet.objects.filter(airline=airline):
+      context['msg'] = 'You have no flights scheduled.'
+      form = FlightForm()
+      form.fields["aircraft"].queryset = Fleet.objects.filter(airline=airline)
+      context['form'] = form
+    return render(request, 'flights/overview.html', context)
+
+  if request.method == 'GET':
+    #form = FlightForm()
+    #form.fields["aircraft"].queryset = Fleet.objects.filter(airline=airline)
+    # return render(request, 'flight_schedule', {'flights': flights, 'form': form})
+    return render(request, 'flights/overview.html', {'queryset': flights})
+  elif request.method == 'POST':
+    processed_flights = SimEngine.process_day(flights)
+    return render(request, 'flights/results.html', {'flights': processed_flights})
+  return render(request, 'flights/overview.html', {'queryset': None})
 
 
 def is_valid_queryparam(param):
@@ -94,7 +169,6 @@ def AircraftFeedbackView(request):
   return render(request, "aircraft/feedback.html", context)
 
 
-# Create your views here.
 def about_team(request):
   return render(request, 'about_team.html')
 
@@ -103,6 +177,7 @@ def onboarding(request):
   return render(request, 'onboarding.html')
 
 
+@login_required
 def dashboard(request):
   return render(request, 'dashboard.html')
 
@@ -152,7 +227,53 @@ def register(request):
 def send_welcome_email(request):
   username = request.POST.get('username')
   subject = 'Welcome to Airline Simulator'
-  message = f'Welcome {username}. Your account has been successfully created. You can start using the Airline Simulator.'
+
+  message = f'''
+  Welcome to the skies of Virtual Airline, {username}! Your account has been successfully created, and we’re excited to have you with us. You are now ready to navigate the complexities of airline management and take your understanding of the aviation industry to new heights.
+
+  <b>Getting Started</b>
+  To kick off your journey, we’ve put together a few tips to help you take full advantage of all the features available:
+  - <b>Create Your First Flight:</b> Dive right into the simulation by scheduling your first flight. Visit your dashboard to get started.
+  - <b>Explore the Fleet:</b> Check out our diverse range of aircraft and select the one that best fits your strategy.
+  - <b>Simulation Guide:</b> Familiarize yourself with the ins and outs of the airline industry with our detailed simulation guide available <a href="https://33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev/about_team/">here</a>.
+
+  <b>Need Assistance?</b>
+  Our support team is here to help you every step of the way. If you have any questions or need assistance, feel free to reach out via our <a href="https://33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev/about_team/">Support Center</a>.
+
+  Thank you for choosing Virtual Airline. We can’t wait to see how high you’ll soar.
+
+  Happy flying!
+
+  The Virtual Airline Team
+  '''
+
   from_email = f'Airline Admin <{DEFAULT_FROM_EMAIL}>'
   recipient_list = [request.POST.get('email')]
   send_mail(subject, message, from_email, recipient_list, fail_silently=True)
+
+
+'''
+## [1.0.1] - 2024-03-25
+### Added
+- aircraft loopup page
+'''
+'''
+## [1.0.0] - 2024-04-15 - Gavin
+### Added
+- added airport view.
+- added fleet view.
+- added verify email to register view.
+- email already taken check.
+- about team view.
+- onboarding view.
+- New account email.
+- Postmark email service.
+- passwords match check.
+- password length check.
+- invalid email check.
+- username already taken check.
+- register view.
+- dashboard view.
+### Changed
+- "register.html" to "registration/register.html"
+'''

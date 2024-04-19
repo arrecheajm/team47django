@@ -31,7 +31,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url 'dashboard' %}">
       <img src="{% static 'logo.png' %}" alt="" height="30" class="d-inline-block align-top">
-      Airline Simulator
+      Virtual Airline
     </a>
     <button class="navbar-toggler" type="button"
       data-bs-toggle="collapse"
@@ -41,10 +41,11 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-        <a class="nav-link" href="#">Fleet</a>
-        <a class="nav-link" href="#">Operations</a>
-        <a class="nav-link" href="#">Airports</a>
-        <a class="nav-link" href="{% url 'aircraft_search' %}">Aircraft</a>
+        <a class="nav-link" href="{% url 'airline' %}">Airline</a>
+        <a class="nav-link" href="{% url 'fleet' %}">Fleet</a>
+        <a class="nav-link" href="{% url 'flights' %}">Schedule</a>
+        <a class="nav-link" href="{% url 'airports' %}">Airports</a>
+        <a class="nav-link" href="{% url 'aircraft' %}">Aircraft</a>
         <li class="nav-item dropdown">
           <a class="nav-link btn-success dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             About</a>

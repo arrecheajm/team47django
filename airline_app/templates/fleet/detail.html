@@ -1,0 +1,47 @@
+<!--
+- apr 15, 2024. Initial version.
+-->
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="p-5">{{ aircraft.registration }}</h1>
+    {% if user.is_authenticated %}
+        <div class="card" style="width: 24rem;">
+          <div class="card-body">
+            <div class="card-text">Airline: {{ aircraft.airline.name }}</div>
+            <div class="card-text">Model: {{ aircraft.aircraft.model }}</div>
+            <div class="card-text">Manufactured on: {{ aircraft.manufacture_date }}</div>
+            <div class="card-text">Operating hours: {{ aircraft.operating_hours }}</div>
+            <div class="card-text">Cycles: {{ aircraft.cycles }}</div>
+            <div class="card-text">Seats: {{ aircraft.aircraft.seats }}</div>
+            <div class="card-text">Range: {{ aircraft.aircraft.range }} miles</div>
+            <div class="card-text">Livery: {{ aircraft.livery_title }}</div>
+            <p class="card-text"> </p>
+            <h6 class="card-title">Scheduled Maintenance:</h6>
+            <div class="card-text">A-Check: {{ aircraft.next_a_check}} days</div>
+            <div class="card-text">B-Check: {{ aircraft.next_b_check}} days</div>
+            <div class="card-text">C-Check: {{ aircraft.next_c_check}} days</div>
+            <div class="card-text">D-Check: {{ aircraft.next_d_check}} days</div>
+            <p class="card-text"> </p>
+            <a href="overview" class="btn btn-primary">Back</a>
+              
+          </div>
+        </div>
+        <!-- <div class="container">
+            <div class="row">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-tital">+</h5>
+                            <a href="overview" class="btn btn-primary"Back</a>
+                        </div>
+                    </div>
+                
+            </div>
+        </div> -->
+    {% else %}
+        <p class="lead">You must be logged in to view this page</p>
+        <a href="{% url 'login' %}" class="btn btn-primary">LOGIN</a>
+    {% endif %}
+
+{% endblock %}
