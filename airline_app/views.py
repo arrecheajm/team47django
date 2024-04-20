@@ -1,3 +1,4 @@
+# type: ignore
 from .models import SimEngine
 from .models import Airport
 from .models import Airline
@@ -5,6 +6,7 @@ from .models import Fleet
 from .models import Flight
 from .models import Aircraft
 from .models import AircraftFeedback
+from .forms import FlightFormSet
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from verify_email.email_handler import send_verification_email
@@ -18,7 +20,6 @@ from django.contrib.auth.models import User
 import re
 from airline_app.forms import AircraftFeedbackForm
 from django.forms import modelformset_factory
-from airline_app.forms import FlightForm
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -57,57 +58,31 @@ def fleet(request):
 
 @login_required
 def flights(request):
-  loggedin_user_id = request.user.id
-  if request.method == 'POST':
-    form = FlightForm(request.POST)
-    if form.is_valid():
-      new_flight = Flight()
-      new_flight.aircraft = form.cleaned_data['aircraft']
-      new_flight.airline = new_flight.aircraft.airline
-      new_flight.origin = form.cleaned_data['origin']
-      new_flight.destination = form.cleaned_data['destination']
-      new_flight.sch_arrival_time = form.cleaned_data['sch_arrival_time']
-      new_flight.sch_departure_time = form.cleaned_data['sch_departure_time']
-      new_flight.ticket_price = form.cleaned_data['ticket_price']
-      # Fails due to actual times not null check failing.
-      #new_flight.save()
-      pass
-    else:
-      print("Didn't work.")
-
-  # Check if the user has an airline associated with their account.
-  try:
-    airline = Airline.objects.get(user_id=loggedin_user_id)
-  except ObjectDoesNotExist:
-    msg = 'You do not have an Airline.'
-    return render(request, 'flights/overview.html', {
-        'queryset': None,
-        'msg': msg
-    })
-
+  current_user_id = request.user.id
+  airline = Airline.objects.get(user_id=current_user_id)
   flights = Flight.objects.filter(airline=airline)
-  if not flights:
-    msg = 'You have no fleet.'
-    context = {
-        'queryset': None,
-        'msg': msg,
-    }
-    if Fleet.objects.filter(airline=airline):
-      context['msg'] = 'You have no flights scheduled.'
-      form = FlightForm()
-      form.fields["aircraft"].queryset = Fleet.objects.filter(airline=airline)
-      context['form'] = form
-    return render(request, 'flights/overview.html', context)
-
-  if request.method == 'GET':
-    #form = FlightForm()
-    #form.fields["aircraft"].queryset = Fleet.objects.filter(airline=airline)
-    # return render(request, 'flight_schedule', {'flights': flights, 'form': form})
-    return render(request, 'flights/overview.html', {'queryset': flights})
-  elif request.method == 'POST':
-    processed_flights = SimEngine.process_day(flights)
-    return render(request, 'flights/results.html', {'flights': processed_flights})
-  return render(request, 'flights/overview.html', {'queryset': None})
+  initial_formset = FlightFormSet(queryset=flights)
+  # POST
+  if request.method == 'POST':
+    post_formset = FlightFormSet(request.POST) 
+    if 'save' in request.POST or 'submit' in request.POST:
+      for post_form in post_formset.forms:
+        if post_form.has_changed() and post_form.is_valid():
+          post_form.save()
+    if 'submit' in request.POST:
+      processed_flights = SimEngine.process_day(flights)
+      return render(request, 'flights/results.html', {'flights': processed_flights})
+    elif 'save' in request.POST:
+      print(f"{post_formset.errors=}")
+      if any(form_errors for form_errors in post_formset.errors): 
+        print('errors')
+        return render(request, 'flights/overview.html', {'formset': post_formset})
+      else:
+        return redirect(reverse('flights'))
+        
+  # GET
+  elif request.method == 'GET':
+    return render(request, 'flights/overview.html', {'formset': initial_formset})
 
 
 def is_valid_queryparam(param):
@@ -188,13 +163,13 @@ def register(request):
                   {'form': CustomUserCreationForm})
   elif request.method == 'POST':
     form = CustomUserCreationForm(request.POST)
-
+    #username
     username = request.POST.get('username')
     user = User.objects.filter(username=username)
     if user.exists():
       return render(request, 'registration/registration_problem.html',
                     {'message': username + ' is already taken.'})
-
+    #email
     email = request.POST.get('email')
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
       return render(request, 'registration/registration_problem.html',
@@ -203,7 +178,7 @@ def register(request):
     if user_by_email.exists():
       return render(request, 'registration/registration_problem.html',
                     {'message': email + ' is already taken.'})
-
+    #password
     password1 = request.POST.get('password1')
     password2 = request.POST.get('password2')
     if password1 != password2:
@@ -213,7 +188,7 @@ def register(request):
     if password_length < 8:
       return render(request, 'registration/registration_problem.html',
                     {'message': 'Password is too short. Minimum length is 8'})
-
+    #verification email
     if form.is_valid():
       inactive_user = send_verification_email(request, form)
       # user = form.save()
@@ -226,7 +201,7 @@ def register(request):
 
 def send_welcome_email(request):
   username = request.POST.get('username')
-  subject = 'Welcome to Airline Simulator'
+  subject = 'Welcome to Virtual Airline'
 
   message = f'''
   Welcome to the skies of Virtual Airline, {username}! Your account has been successfully created, and we’re excited to have you with us. You are now ready to navigate the complexities of airline management and take your understanding of the aviation industry to new heights.

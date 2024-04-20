@@ -1,3 +1,5 @@
+# type: ignore
+# ^^^ disables pyright-extended type checking.
 '''
 16/4/2024 Added pax_demand function.
 16/4/2024 Added airports model.
@@ -5,6 +7,7 @@
 12/4/2024 Added fleets model.
 13/4/2024 Added random_aircraft_registration_generator function.
 '''
+
 from datetime import datetime
 from datetime import date
 from datetime import time
@@ -31,8 +34,8 @@ def random_airline_designator_generator():
 
 def pax_demand(rating_decimal: Decimal,
                price_decimal: Decimal,
-               base_price=200,
-               base_pax_demand=500):
+               base_price=300,
+               base_pax_demand=400):
   # This function calculates the number of buyers for a ticket based on
   # an airline's customer rating and the price of a ticket for that flight.
   # The formula is based on a supply and demand curve that has its
@@ -100,6 +103,9 @@ class Airport(models.Model):
   # dst. Whether or not daylight savings is active in the timezone.
   dst = models.BooleanField(default=False)
 
+  def __str__(self):
+    return self.location
+
 
 class Aircraft(models.Model):
   # model = Name of aircraft
@@ -136,6 +142,9 @@ class Aircraft(models.Model):
                                     max_digits=3,
                                     decimal_places=2)
 
+  def __str__(self):
+    return self.model
+
 
 class Airline(models.Model):
   # A airline must be linked to a user.
@@ -163,6 +172,9 @@ class Airline(models.Model):
       default=0.75,
       validators=[MinValueValidator(0.000),
                   MaxValueValidator(1.000)])
+
+  def __str__(self):
+    return self.name
 
 
 class Fleet(models.Model):
@@ -203,20 +215,26 @@ class Fleet(models.Model):
   next_d_check = models.PositiveIntegerField(
       default=2800, verbose_name='Next D-Check (days)')
 
+  def __str__(self):
+    return self.registration
+
 
 class Flight(models.Model):
   # Airline operating the flight
   airline = models.ForeignKey(Airline, on_delete=models.CASCADE, default=1)
   # Flight number.
-  # Prefix is the airline's designator.
-  # Suffix is a 4 digit random integer.
+  # Prefix is the airline's designator
+  # Suffix is a 4 digit random integer
   # e.g. WN 4173, AA 3122
-  number = models.CharField(max_length=7, blank=True)
+  number = models.CharField(max_length=7,
+                            blank=True,
+                            verbose_name='Flight number')
   # Aircraft
-  aircraft = models.ForeignKey(Fleet, on_delete=models.CASCADE)
+  aircraft = models.ForeignKey(Fleet, on_delete=models.CASCADE, blank=False)
   # Origin
   origin = models.ForeignKey(Airport,
                              on_delete=models.CASCADE,
+                             blank=False,
                              related_name='origin_choices')
   # Destination
   destination = models.ForeignKey(Airport,
@@ -233,28 +251,32 @@ class Flight(models.Model):
   # Scheduled departure time in UTC
   sch_departure_time = models.TimeField()
   # Actual departure time in UTC
-  act_departure_time = models.TimeField()
+  act_departure_time = models.TimeField(default='00:00:00')
   # Schduled arrival time in UTC
   sch_arrival_time = models.TimeField()
   # Actual arrival time in UTC
-  act_arrival_time = models.TimeField()
+  act_arrival_time = models.TimeField(default='00:00:00')
   # Ticket price in USD
-  ticket_price = models.DecimalField(max_digits=8,
-                                     decimal_places=2,
-                                     default=200.00)
-  # Tickets sold.
+  ticket_price = models.DecimalField(max_digits=8, decimal_places=2)
+  # Tickets sold
   tickets_sold = models.PositiveIntegerField(default=0)
-  # Revenue from the flight.
+  # Revenue from the flight
   # Calculated at save time as ticket_price * tickets_sold
   revenue = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
   # Cost of the flight
   cost = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
   # is_complete. True when the flight has been compeleted.
   is_complete = BooleanField(default=False)
+  # is_cancelled. True when the flight has been cancelled.
+  is_canceled = BooleanField(default=False, verbose_name='Cancel')
   # flight rating. A real number in the interval [0,1]
   # 1 = perfect
   # 0 = everyone is dead
   rating = models.DecimalField(max_digits=4, decimal_places=3, default=0.75)
+
+  # DERIVED FIELDS (not stored in db)
+  def profit(self):
+    return f"{round(self.revenue - self.cost, 2):,}"
 
   # override class save() method to assign fields that require a complete entry.
   def save(self, *args, **kwargs):
@@ -269,6 +291,9 @@ class Flight(models.Model):
     self.distance = haversine(origin_coords, destination_coords, Unit.MILES)
     super().save(*args, **kwargs)
 
+  def __str__(self):
+    return self.number
+
 
 class AircraftFeedback(models.Model):
   message = models.CharField(max_length=200)
@@ -280,6 +305,8 @@ class SimEngine(models.Model):
 
   def process_day(todays_flights):
     for flight in todays_flights:
+      if flight.is_canceled:
+        continue
       # actual departure time
       sch_departure_time = flight.sch_departure_time
       departure_delay = flight.origin.departure_delay
@@ -326,16 +353,14 @@ class SimEngine(models.Model):
       act_arrival = datetime.combine(datetime.today(), flight.act_arrival_time)
       flight_hours = Decimal(
           (act_arrival - act_departure).total_seconds() / 3600)
-      fleet.operating_hours += flight_hours
-      fleet.next_a_check -= 1
-      fleet.next_b_check -= 1
-      fleet.next_c_check -= 1
-      fleet.next_d_check -= 1
+      fleet.operating_hours += 1
+      fleet.next_a_check -= 1 if fleet.next_a_check > 0 else 0
+      fleet.next_b_check -= 1 if fleet.next_b_check > 0 else 0
+      fleet.next_c_check -= 1 if fleet.next_c_check > 0 else 0
+      fleet.next_d_check -= 1 if fleet.next_d_check > 0 else 0
       fleet.cycles += 1
       fleet.location = flight.destination
       # mark flight as complete
-      #TODO
-      # update airlines rating as the average of all its completed flights
       #TODO
 
       fleet.save()

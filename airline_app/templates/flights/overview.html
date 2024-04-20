@@ -1,52 +1,43 @@
 <!--
-## [1.0.0] - 2024-02-24
-### Added
-- Initial version.
+- apr 15, 2024. Initial version.
 -->
 
 {% extends 'base.html' %}
 
 {% block content %}
-  <main role="main" class="container">
-    {% if queryset %}
-    <form method="POST" action= "{% url 'flights' %}">
-      <div class="row">
-        <ul>
-          {% for flight in queryset %}
-            <li>
-              <span>Flight number: {{ flight.number }}</span>
-              <span>Aircraft: {{ flight.aircraft.aircraft.model }}</span><br>
-              <span>Origin: {{ flight.origin.name }}</span>
-              <span>Destination: {{ flight.destination.name }}</span>
-              <span>Scheduled Depature: {{ flight.sch_departure_time }}</span>
-              <span>Scheduled Arrival: {{ flight.sch_arrival_time }}</span>
-              <span>Ticket Price: ${{ flight.ticket_price }}</span>
-            </li>
-            <hr />
-          {% endfor %}
-        </ul>
-        <form id="process_day" method="post" action="{% url 'flights' %}">
+        <h1 class="p-5">Flight Schedule</h1>
+        <div class="container">
+        <form method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-warning">Submit Schedule</button>
-        </form>
-      </div>
+            <p>
+            <button type="submit" name="save" class="btn btn-primary">Save only</button> or
+            <button type="submit" name="submit" class="btn btn-warning">Save & fly</button>
+            </p>
+            <div class="row">
+            {{ formset.management_form }}
+            {% for form in formset %}
+            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <div class="row">
+            <div class="card-deck">
+            <div class="card shadow">
+            {% if form.empty_permitted %}
+            <dev class="card-header bg-success text-white">NEW</dev>
+            {% else %}
+            <dev class="card-header">&emsp;</dev>
+            {% endif %}
+            <div cladd="card-body">
+            {{ form.as_p }}
+            <p>
     
-      <hr />
-
-      <!-- <h3>Edit flight</h3> -->
-      {{ form }}
-    </form>
-    {% else %}
-      <h3>{{ msg }}</h3>
-    {% endif %}
-    
-    {% if form %}
-      <form method="POST" action= "{% url 'flights' %}">
-        <h3>Edit flight</h3>
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Submit">
-      </form>
-    {% endif %}
-  </main>
+            </p>
+            </div>
+            </div>
+            </div>
+            </div>
+            </div>
+            {% endfor %}
+            </div>
+        </form>            
+        </div>
+                
 {% endblock %}

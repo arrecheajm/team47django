@@ -3,9 +3,11 @@
 ### Added
 - UserCreationForm
 '''
-
+from django import forms
+from django.forms import modelformset_factory
+from .models import Flight
+from .models import AircraftFeedback
 from django.contrib.auth.forms import UserCreationForm
-from .models import AircraftFeedback, Flight
 from django.forms import ModelForm
 
 
@@ -20,8 +22,8 @@ class FlightForm(ModelForm):
   class Meta:
     model = Flight
     fields = [
-        'aircraft', 'origin', 'destination', 'sch_arrival_time',
-        'sch_departure_time', 'ticket_price'
+        'number', 'aircraft', 'origin', 'destination', 'sch_departure_time',
+        'sch_arrival_time', 'ticket_price', 'is_canceled'
     ]
 
 
@@ -30,3 +32,6 @@ class AircraftFeedbackForm(ModelForm):
   class Meta:
     model = AircraftFeedback
     fields = ('message', )
+
+
+FlightFormSet = modelformset_factory(Flight, form=FlightForm, extra=1)
