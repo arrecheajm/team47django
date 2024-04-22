@@ -8,14 +8,12 @@
 13/4/2024 Added random_aircraft_registration_generator function.
 '''
 
-from datetime import datetime
+from datetime import datetime, time
 from datetime import date
-from datetime import time
 from datetime import timedelta
 from django.contrib.auth import validators
 from django.core.validators import MaxValueValidator, MinValueValidator
 from decimal import Decimal
-from django.forms.widgets import HiddenInput
 from haversine import haversine, Unit
 from django.db import transaction
 from django.db import models
@@ -74,7 +72,8 @@ class Economy(models.Model):
   # Jet-A (airliner fuel) price per lb in USD
   gas_price = models.DecimalField(max_digits=10,
                                   decimal_places=6,
-                                  default=1.100000)
+                                  default=1.100000,
+                                  verbose_name='Gas Price ($/lb)')
 
 
 class Airport(models.Model):
@@ -120,7 +119,7 @@ class Aircraft(models.Model):
   # seats = # of seats on aircraft
   seats = models.IntegerField()
   # range = Aircraft range distance (miles)
-  range = models.IntegerField()
+  range = models.IntegerField(verbose_name='Range (miles)')
   # fuel burn = lbs of fuel consumed per mile (lbs/miles)
   fuel_burn = models.DecimalField(max_digits=8,
                                   decimal_places=2,
@@ -293,20 +292,29 @@ class Flight(models.Model):
 
   def __str__(self):
     return self.number
-
+    
+# class AirlineCosts(models.Model):
+  # Strategy. A name for the cost strategy. e.g. ultra-low-cost, low-cost, hybrid
+  # strategy = models.CharField(max_length=32)
+  # Fuel cost ($/lb). All pay the same price
+  # fuel_cost = models.ForeignKey(Economy, on_delete=models.CASCADE)
 
 class AircraftFeedback(models.Model):
   message = models.CharField(max_length=200)
 
 
 class SimEngine(models.Model):
-  # day. The current day number inside the sim.
-  sim_day = models.PositiveIntegerField(default=0)
+  # User. One record(simEngine) for each user.
+  user = models.OneToOneField(User, on_delete=models.CASCADE)
+  # sim_day. The current day number inside the sim.
+  current_day = models.PositiveIntegerField(default=0)
 
   def process_day(todays_flights):
+    print(f"{todays_flights=}")
     for flight in todays_flights:
       if flight.is_canceled:
         continue
+      print(f"{flight.number=}")
       # actual departure time
       sch_departure_time = flight.sch_departure_time
       departure_delay = flight.origin.departure_delay
@@ -317,14 +325,15 @@ class SimEngine(models.Model):
       act_departure_time = act_departure_datetime.time()
       flight.act_departure_time = act_departure_time
       # actual arrival time
-      sch_arrival_time = flight.sch_arrival_time
-      arrival_delay = flight.destination.arrival_delay
-      sch_arrival_datetime = datetime.combine(datetime.today(),
-                                              sch_arrival_time)
-      act_arrival_datetime = sch_arrival_datetime + timedelta(
-          minutes=arrival_delay)
-      act_arrival_time = act_arrival_datetime.time()
-      flight.act_arrival_time = act_arrival_time
+      distance = flight.distance
+      cruise_speed = flight.aircraft.aircraft.cruise_speed
+      climb_descend_duration = 60
+      onroute = timedelta(hours=float(distance / cruise_speed))
+      onroute += timedelta(minutes=climb_descend_duration)
+      arrival_delay = timedelta(minutes=flight.destination.arrival_delay)
+      total_duration = onroute + arrival_delay
+      act_arrival_datetime = act_departure_datetime + total_duration
+      flight.act_arrival_time = act_arrival_datetime.time()
       # flight rating
       airline_rating = flight.airline.rating
       aircraft_rating = flight.aircraft.aircraft.pax_comfort
@@ -335,7 +344,6 @@ class SimEngine(models.Model):
       flight.rating = average_rating
       #tickets sold and revenue
       act_demand = pax_demand(flight.airline.rating, flight.ticket_price)
-      print(f"{flight.number=}")
       print(f"{act_demand=}")
       if flight.aircraft.aircraft.seats < act_demand:
         flight.tickets_sold = flight.aircraft.aircraft.seats
@@ -348,12 +356,8 @@ class SimEngine(models.Model):
       flight.cost = fuel_cost
       # update fleet aircraft used for the flight
       fleet = Fleet.objects.get(id=flight.aircraft.id)
-      act_departure = datetime.combine(datetime.today(),
-                                       flight.act_departure_time)
-      act_arrival = datetime.combine(datetime.today(), flight.act_arrival_time)
-      flight_hours = Decimal(
-          (act_arrival - act_departure).total_seconds() / 3600)
-      fleet.operating_hours += 1
+      print(f"{fleet=}")
+      fleet.operating_hours += Decimal(total_duration.total_seconds() / 3600)
       fleet.next_a_check -= 1 if fleet.next_a_check > 0 else 0
       fleet.next_b_check -= 1 if fleet.next_b_check > 0 else 0
       fleet.next_c_check -= 1 if fleet.next_c_check > 0 else 0
@@ -366,5 +370,6 @@ class SimEngine(models.Model):
       fleet.save()
 
       flight.save()
-
+      
+    print(f"{todays_flights=}")
     return todays_flights

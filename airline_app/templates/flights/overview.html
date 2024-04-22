@@ -5,39 +5,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        <h1 class="p-5">Flight Schedule</h1>
-        <div class="container">
-        <form method="post">
-            {% csrf_token %}
-            <p>
-            <button type="submit" name="save" class="btn btn-primary">Save only</button> or
-            <button type="submit" name="submit" class="btn btn-warning">Save & fly</button>
-            </p>
-            <div class="row">
-            {{ formset.management_form }}
-            {% for form in formset %}
+    <div class="container">
+    <h1 class="p-5">Flight Schedule</h1>
+    <form method="post"> {% csrf_token %}
+        <p>
+        <button type="submit" name="save" class="btn btn-primary">Save only</button> or
+        <button type="submit" name="submit" class="btn btn-warning">Save & fly</button>
+        </p>
+        <div class="row">
+        {{ formset.management_form }}
+        {% for form in formset %}
             <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
-            <div class="row">
             <div class="card-deck">
             <div class="card shadow">
             {% if form.empty_permitted %}
-            <dev class="card-header bg-success text-white">NEW</dev>
+            <h4 class="card-header bg-success text-white">NEW</h4>
             {% else %}
-            <dev class="card-header">&emsp;</dev>
+            <h4 class="card-header">{{ form.number.value }}</h4>
             {% endif %}
-            <div cladd="card-body">
+            <p cladd="card-body">
             {{ form.as_p }}
-            <p>
-    
             </p>
             </div>
             </div>
             </div>
-            </div>
-            </div>
-            {% endfor %}
-            </div>
-        </form>            
+        {% endfor %}
         </div>
-                
+    </form>            
+    </div>
 {% endblock %}
