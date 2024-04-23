@@ -22,6 +22,8 @@ import re
 from airline_app.forms import AircraftFeedbackForm
 from django.forms import modelformset_factory
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Avg, Sum, Count, F
+from django.db.models.functions import TruncDay
 
 
 def get_current_airline(request):
@@ -36,23 +38,6 @@ def airports(request):
   airports = Airport.objects.all()
   if request.method == 'GET':
     return render(request, 'airports/overview.html', {'airports': airports})
-def import_csv(file):
-  df = pd.read_csv(file)
-  flights = [
-    Flight(
-      airline=Airline.objects.get(pk=row['airline']),
-      number=row['number'],
-      aircraft=Fleet.objects.get(pk=row['aircraft']),
-      origin=Airport.objects.get(pk=row['origin']),
-      destination=Airport.objects.get(pk=row['destination']),
-      sch_departure_time=row['sch_departure_time'],
-      sch_arrival_time=row['sch_arrival_time'],
-      ticket_price=row['ticket_price'],
-      is_canceled=row['is_canceled'],
-    )
-    for inx, row in df.iterrows()
-  ]
-  Flight.objects.bulk_create(flights)
 
 
 @login_required
@@ -86,12 +71,57 @@ def airline(request):
   })
 
 
-# @login_required
+@login_required
 def airline_analytics(request):
+  # Get airline
   airline = airline = get_current_airline(request)
 
+  # Get flights
+  # flights = Flight.objects.filter(airline=airline, day__gt=thirty_days_ago, day__lte=current_day)
+  flights = Flight.objects.all()  #****CHANGE TO SPECIFIC AIRLINE****
+  # Dates for calculations
+  current_day = airline.current_day
+  thirty_days_ago = current_day - 30
+
+  #Metrics
+  # flights_completed = flights.filter(
+  #     is_complete=True).select_related('aircraft')
+  # average_distance = flights_completed.aggregate(
+  #     Avg('distance'))['distance__avg']
+  # total_revenue = flights_completed.aggregate(Sum('revenue'))['revenue__sum']
+  # total_cost = flights_completed.aggregate(Sum('cost'))['cost__sum']
+  # profit = total_revenue - total_cost if total_revenue and total_cost else 0
+  # # load_factor = flights_completed.aggregate(load_factor=Avg('tickets_sold') /Avg('aircraft__seats'))
+
+  average_distance = flights.aggregate(Avg('distance'))['distance__avg']
+  total_revenue = flights.aggregate(Sum('revenue'))['revenue__sum']
+  total_cost = flights.aggregate(Sum('cost'))['cost__sum']
+  profit = total_revenue - total_cost if total_revenue and total_cost else 0
+  # load_factor = flights.aggregate(load_factor=Avg('tickets_sold') / Avg('aircraft__seats'))
+
+  # Aggregate data for charts
+  daily_flights = flights.values('day').annotate(
+      count=Count('id')).order_by('day')
+  destination_distribution = flights.values('destination').annotate(
+      total=Count('id')).order_by('-total')
+
   print(f"{request=}")
-  return render(request, 'airline/analytics.html', {'airline_obj': airline})
+  # if request.method == 'POST':
+
+  return render(
+      request,
+      'airline/analytics.html',
+      {
+          'airline_obj': airline,
+          'flights': flights,
+          'average_distance': average_distance,
+          'total_revenue': total_revenue,
+          'total_cost': total_cost,
+          'profit': profit,
+          # 'load_factor': load_factor,
+          'daily_flights': list(daily_flights),
+          'destination_distribution': list(destination_distribution)
+      })
 
 
 @login_required
