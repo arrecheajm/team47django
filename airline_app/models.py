@@ -1,5 +1,5 @@
 # type: ignore
-# ^^^ disables pyright-extended type checking.
+# ^^^ disables pyright-extended's flaky type checking.
 '''
 16/4/2024 Added pax_demand function.
 16/4/2024 Added airports model.
@@ -7,7 +7,7 @@
 12/4/2024 Added fleets model.
 13/4/2024 Added random_aircraft_registration_generator function.
 '''
-
+from django.db.models import Sum
 from datetime import datetime, time
 from datetime import date
 from datetime import timedelta
@@ -62,10 +62,6 @@ def random_aircraft_registration_generator():
   prefix = 'N-'  #N is for airacraft registered in the US
   suffix = ''.join(random.choice(letters) for _ in range(5))
   return prefix + suffix
-
-
-# class Sim(models.Model):
-#   day = models.PositiveIntegerField(default=0)
 
 
 class Economy(models.Model):
@@ -140,7 +136,6 @@ class Aircraft(models.Model):
   pax_comfort = models.DecimalField(default=0.8,
                                     max_digits=3,
                                     decimal_places=2)
-
   def __str__(self):
     return self.model
 
@@ -152,16 +147,19 @@ class Airline(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   # airline's name
   name = models.CharField(max_length=16, default='Acme Airlines')
+  # current day.
+  current_day = models.PositiveIntegerField(default=0)
   # airline designator.
   # Two uppercase letters that prefix all the airline's flights
   designator = models.CharField(max_length=2,
                                 default=random_airline_designator_generator)
   # airline homebase
-  homebase = models.CharField(max_length=3, default='DFW')
+  # homebase = models.CharField(max_length=3, default='DFW')
+  homebase = models.ForeignKey(Airport, on_delete=models.SET_NULL, null=True, default=1)
   # airline's total revenue in USD
-  revenue = models.DecimalField(max_digits=16, decimal_places=2)
+  revenue = models.DecimalField(max_digits=16, decimal_places=2, default=0.00)
   # airline's total costs in USD
-  costs = models.DecimalField(max_digits=16, decimal_places=2)
+  costs = models.DecimalField(max_digits=16, decimal_places=2, default=0.00)
   # airline's customer rating. A real number [0, 1]
   # 0 : zero tickets will sell at any price (user has lost the simulation)
   # 1 : the max number of tickets will sell based on the pax_demand fn.
@@ -171,6 +169,13 @@ class Airline(models.Model):
       default=0.75,
       validators=[MinValueValidator(0.000),
                   MaxValueValidator(1.000)])
+  # Profit. Derived field (not kept in db)
+  def profit(self):
+    return self.revenue - self.costs
+  # inc_day. Increase the airline's current day by 1.
+  def inc_day(self):
+    self.current_day += 1
+    self.save()
 
   def __str__(self):
     return self.name
@@ -246,7 +251,7 @@ class Flight(models.Model):
                                  decimal_places=4,
                                  default=0.0000)
   # Day
-  day = models.PositiveIntegerField(default=0, editable=False)
+  day = models.PositiveIntegerField(default=0)
   # Scheduled departure time in UTC
   sch_departure_time = models.TimeField()
   # Actual departure time in UTC
@@ -292,12 +297,14 @@ class Flight(models.Model):
 
   def __str__(self):
     return self.number
-    
+
+
 # class AirlineCosts(models.Model):
-  # Strategy. A name for the cost strategy. e.g. ultra-low-cost, low-cost, hybrid
-  # strategy = models.CharField(max_length=32)
-  # Fuel cost ($/lb). All pay the same price
-  # fuel_cost = models.ForeignKey(Economy, on_delete=models.CASCADE)
+# Strategy. A name for the cost strategy. e.g. ultra-low-cost, low-cost, hybrid
+# strategy = models.CharField(max_length=32)
+# Fuel cost ($/lb). All pay the same price
+# fuel_cost = models.ForeignKey(Economy, on_delete=models.CASCADE)
+
 
 class AircraftFeedback(models.Model):
   message = models.CharField(max_length=200)
@@ -309,12 +316,16 @@ class SimEngine(models.Model):
   # sim_day. The current day number inside the sim.
   current_day = models.PositiveIntegerField(default=0)
 
-  def process_day(todays_flights):
+  @transaction.atomic
+  def process_day(todays_flights, airline):
     print(f"{todays_flights=}")
+    print(f"{airline=}")
     for flight in todays_flights:
       if flight.is_canceled:
         continue
       print(f"{flight.number=}")
+      # set day of flight
+      flight.day = airline.current_day
       # actual departure time
       sch_departure_time = flight.sch_departure_time
       departure_delay = flight.origin.departure_delay
@@ -342,7 +353,7 @@ class SimEngine(models.Model):
       average_rating = (airline_rating + aircraft_rating + origin_rating +
                         destination_rating) / 4
       flight.rating = average_rating
-      #tickets sold and revenue
+      #tickets sold and flight revenue
       act_demand = pax_demand(flight.airline.rating, flight.ticket_price)
       print(f"{act_demand=}")
       if flight.aircraft.aircraft.seats < act_demand:
@@ -350,10 +361,14 @@ class SimEngine(models.Model):
       else:
         flight.tickets_sold = act_demand
       flight.revenue = flight.ticket_price * flight.tickets_sold
-      # cost
+      # flight cost
       economy = Economy.objects.get(pk=1)
       fuel_cost = flight.distance * flight.aircraft.aircraft.fuel_burn * economy.gas_price
       flight.cost = fuel_cost
+      # update airline revenue and costs
+      airline.revenue += flight.revenue
+      airline.costs += flight.cost
+      airline.save()
       # update fleet aircraft used for the flight
       fleet = Fleet.objects.get(id=flight.aircraft.id)
       print(f"{fleet=}")
@@ -364,12 +379,16 @@ class SimEngine(models.Model):
       fleet.next_d_check -= 1 if fleet.next_d_check > 0 else 0
       fleet.cycles += 1
       fleet.location = flight.destination
+      # increment airline's day
+      airline.inc_day()
+      airline.save()
       # mark flight as complete
       #TODO
+
 
       fleet.save()
 
       flight.save()
-      
+
     print(f"{todays_flights=}")
     return todays_flights

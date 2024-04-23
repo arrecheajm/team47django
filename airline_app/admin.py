@@ -7,6 +7,7 @@ from .models import Fleet
 from django.contrib import admin
 from .models import Aircraft, AircraftFeedback
 from import_export.admin import ImportExportModelAdmin
+from import_export import resources
 
 # Register your models here.
 

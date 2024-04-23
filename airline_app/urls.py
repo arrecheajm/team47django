@@ -36,10 +36,11 @@ Including another URLconf
 """
 
 urlpatterns = [
+    path('airline/overview', views.airline, name='airline'),
+    path('airline/analytics', views.airline_analytics, name='airline_analytics'),
     path('flights/overview', views.flights, name='flights'),
     path('flights/results', views.flights, name='flights_results'),
     path('airports/overview', views.airports, name='airports'),
-    path('airline/overview', views.airline, name='airline'),
     path('aircraft/overview', views.aircraft, name='aircraft'),
     path("aircraft/search/", views.AircraftFilterView, name='aircraft_search'),
     path("aircraft/feedback/",
