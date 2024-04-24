@@ -4,8 +4,9 @@
 
 {% block content %}
     <div class="container">
-    <h1 class="p-5">Airline</h1>
-    <div class="row">
+    <h1 class="pt-5">Airline</h1>
+        <h5 class="lead">Customize your airline and view its analytics.</h5>
+    <div class="row pt-3">
     <form method="post"> {% csrf_token %}
         <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
         <div class="card-deck">
@@ -14,7 +15,7 @@
         <div class="card-body">
         <p class="lead">Rating: {{ airline_obj.rating}}</p>
         <p class="lead">Profits: ${{ airline_obj.profit}}</p>
-        <p><button type="submit" name="analytics" class="btn btn-info btn-small">Analytics</button></p>
+        <p><button type="submit" name="analytics" class="btn btn-primary ">Analytics</button></p>
         <hr/> 
         <p>{{ airline.as_p }}</p>
         </div>

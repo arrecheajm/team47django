@@ -7,13 +7,14 @@
 
 {% block content %}
     <div class="container">
-    <h1 class="p-5">Flight Schedule</h1>
+    <h1 class="pt-5">Flight Schedule</h1>
+        <h5 class="lead">Plan your flights and fly!</h5>
     <form method="post"> {% csrf_token %}
         <p>
         <button type="submit" name="save" class="btn btn-primary">Save only</button> or
         <button type="submit" name="submit" class="btn btn-warning">Save & fly</button>
         </p>
-        <div class="row">
+        <div class="row pt-3">
         {{ formset.management_form }}
         {% for form in formset %}
             <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
@@ -24,7 +25,7 @@
             {% else %}
             <h4 class="card-header">{{ form.number.value }}</h4>
             {% endif %}
-            <p class="card-body">
+            <p class="card-text">
             {{ form.as_p }}
             </p>
             </div>

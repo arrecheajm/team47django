@@ -5,50 +5,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="p-5">Airports</h1>
-        <div class="container mt-4">
-            <div class="row">
-                <!-- <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="fs-1">+</div>
-                            <a href="#" class="btn btn-primary">Add</a>
-                        </div>
-                    </div>
-                </div> -->
-                {% for airport in airports %}
-                <div class="col-sm-12 col-md-4 mb-2">
-                <!-- <form method="post" action="{% url 'fleet' %}"> -->
-                    <!-- {% csrf_token %} -->
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- <input type="hidden" name="aircraft_id" value={{ aircraft.id }}> -->
-                            <h5 class="card-title">
-                                {{ airport.name }}
-                                <br>
-                            </h5>
-                            <h6 class="card-subtitle">
-                                {{ airport.location}}
-                            </h6>
-                            <p class="card-text">
-                                
-                                Today's delays:
-                                <br>
-                                Arrivals: {{ airport.arrival_delay }} mins
-                                <br>
-                                Departures: {{ airport.departure_delay }} mins
-                                <br>
-
-                            <p class="card-text"> </p>
-                            <!-- <a href="#" class="btn btn-primary">Details</a> -->
-                            <!-- <a href="{% url 'fleet' %}" class="btn btn-primary">Fleet</a> -->
-                            <!-- <button type="submit" class="btn btn-primary">Buy</button> -->
-                            <!-- </form> -->
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+    <div class="container">
+    <h1 class="pt-5">Airports</h1>
+    <h5 class="lead">Airport information.</h5>
+    <div class="row pt-3">
+    {% for airport in airports %}
+        <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+        <div class="card-deck">
+        <div class="card shadow">
+        <h4 class="card-header bg-primary text-white">{{ airport.location }}</h4>
+        <div class="card-text p-3">
+        {{ airport.name }}
+        <div class="lead">Rating: {{ airport.rating}}</div>
+        <hr>
+        Today's Delays
+        <br>
+        Arrivals: {{ airport.arrival_delay }} mins
+        <br>
+        Departures: {{ airport.departure_delay }} mins
         </div>
-
+        </div>
+        </div>
+        </div>
+    {% endfor %}
+    </div>
+    </div>
 {% endblock %}

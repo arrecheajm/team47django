@@ -5,8 +5,9 @@
 '''
 # from django.contrib.auth import forms
 from django import forms
+from django.db.models.base import Model
 from django.forms import modelformset_factory
-from .models import Flight
+from .models import Fleet, Flight
 from .models import Airline
 from .models import AircraftFeedback
 from django.contrib.auth.forms import UserCreationForm
@@ -39,6 +40,19 @@ class FlightForm(ModelForm):
     }
 
 
+class FleetForm(ModelForm):
+
+  class Meta:
+    model: Fleet
+    fields = [
+        'registration',
+        'livery_title',
+    ]
+
+
+FleetFormSet = modelformset_factory(Fleet, form=FleetForm, extra=0)
+
+
 class AirlineForm(ModelForm):
 
   class Meta:
@@ -50,7 +64,9 @@ class AirlineForm(ModelForm):
         'revenue': forms.HiddenInput(),
         'costs': forms.HiddenInput(),
         'rating': forms.HiddenInput(),
+        'cost_model': forms.HiddenInput(),
     }
+
 
 class AircraftFeedbackForm(ModelForm):
 

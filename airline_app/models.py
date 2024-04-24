@@ -64,6 +64,24 @@ def random_aircraft_registration_generator():
   return prefix + suffix
 
 
+class AirlineCost(models.Model):
+  flight_hours_year = models.FloatField(default=800.00,
+                                        verbose_name='Flight Hours/Year')
+  captain_salary = models.FloatField(default=200000.00,
+                                     verbose_name="Captain's Salary $")
+  first_officer_salary = models.FloatField(
+      default=110000.00, verbose_name="First Officer's Salary $")
+  flight_attendant_salary = models.FloatField(
+      default=55000.00, verbose_name="Flight Attendant's Salary $")
+
+  # crew cost.
+  def crew_cost(self, hours: Decimal) -> Decimal:
+    captain_rate = self.captain_salary / self.flight_hours_year
+    fo_rate = self.first_officer_salary / self.flight_hours_year
+    fa_rate = self.flight_attendant_salary / self.flight_hours_year
+    return Decimal((captain_rate + fo_rate + fa_rate) * float(hours))
+
+
 class Economy(models.Model):
   # Jet-A (airliner fuel) price per lb in USD
   gas_price = models.DecimalField(max_digits=10,
@@ -136,6 +154,7 @@ class Aircraft(models.Model):
   pax_comfort = models.DecimalField(default=0.8,
                                     max_digits=3,
                                     decimal_places=2)
+
   def __str__(self):
     return self.model
 
@@ -155,7 +174,15 @@ class Airline(models.Model):
                                 default=random_airline_designator_generator)
   # airline homebase
   # homebase = models.CharField(max_length=3, default='DFW')
-  homebase = models.ForeignKey(Airport, on_delete=models.SET_NULL, null=True, default=1)
+  homebase = models.ForeignKey(Airport,
+                               on_delete=models.SET_NULL,
+                               null=True,
+                               default=1)
+  # airline's cost model
+  cost_model = models.ForeignKey(AirlineCost,
+                                 on_delete=models.SET_NULL,
+                                 null=True,
+                                 default=1)
   # airline's total revenue in USD
   revenue = models.DecimalField(max_digits=16, decimal_places=2, default=0.00)
   # airline's total costs in USD
@@ -169,9 +196,11 @@ class Airline(models.Model):
       default=0.75,
       validators=[MinValueValidator(0.000),
                   MaxValueValidator(1.000)])
+
   # Profit. Derived field (not kept in db)
   def profit(self):
     return self.revenue - self.costs
+
   # inc_day. Increase the airline's current day by 1.
   def inc_day(self):
     self.current_day += 1
@@ -252,6 +281,10 @@ class Flight(models.Model):
                                  default=0.0000)
   # Day
   day = models.PositiveIntegerField(default=0)
+  # crew.
+  captains = models.PositiveIntegerField(default=1)
+  first_officers = models.PositiveIntegerField(default=1)
+  flight_attendants = models.PositiveIntegerField(default=2)
   # Scheduled departure time in UTC
   sch_departure_time = models.TimeField()
   # Actual departure time in UTC
@@ -268,6 +301,8 @@ class Flight(models.Model):
   # Calculated at save time as ticket_price * tickets_sold
   revenue = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
   # Cost of the flight
+  fuel_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+  crew_cost = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
   cost = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
   # is_complete. True when the flight has been compeleted.
   is_complete = BooleanField(default=False)
@@ -361,10 +396,14 @@ class SimEngine(models.Model):
       else:
         flight.tickets_sold = act_demand
       flight.revenue = flight.ticket_price * flight.tickets_sold
-      # flight cost
-      economy = Economy.objects.get(pk=1)
-      fuel_cost = flight.distance * flight.aircraft.aircraft.fuel_burn * economy.gas_price
-      flight.cost = fuel_cost
+      # fuel cost
+      economy = Economy.objects.first()
+      flight.fuel_cost = flight.distance * flight.aircraft.aircraft.fuel_burn * economy.gas_price
+      flight.cost = flight.fuel_cost
+      # crew cost
+      duration_hours = Decimal(total_duration.total_seconds() / 3600)
+      flight.crew_cost = flight.airline.cost_model.crew_cost(duration_hours)
+      flight.cost += flight.crew_cost
       # update airline revenue and costs
       airline.revenue += flight.revenue
       airline.costs += flight.cost
@@ -381,13 +420,10 @@ class SimEngine(models.Model):
       fleet.location = flight.destination
       # increment airline's day
       airline.inc_day()
+
       airline.save()
-      # mark flight as complete
-      #TODO
-
-
       fleet.save()
-
+      # TODO mark flight as complete
       flight.save()
 
     print(f"{todays_flights=}")

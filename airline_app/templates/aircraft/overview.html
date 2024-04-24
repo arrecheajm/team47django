@@ -9,35 +9,33 @@
     <h1 class="pt-5">Aircraft</h1>
         <h5 class="lead">Compare aircraft models and add them to your fleet.</h5>
     <form method="post"> {% csrf_token %}
-        <div class="row pt-5">
+        <div class="row pt-3">
         {{ formset.management_form }}
         {% for aircraft in aircrafts %}
         <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
         <div class="card-deck">
         <div class="card shadow">
         <h4 class="card-header bg-info text-white">{{ aircraft.model }}</h4>
-        <p class="card-body">
-        Cost to buy: ${{ aircraft.price_millions }}M 
-        <br>
-        PAX comfort rating: {{ aircraft.pax_comfort}}
+        <div class="card-text p-3">
+        <div class="lead">Rating: {{ aircraft.pax_comfort}}</div>
+        Range: {{ aircraft.range }} miles
         <br>
         Seats: {{ aircraft.seats }}
         <br>
-        Range: {{ aircraft.range }} miles
-        <br>
         Cruise Speed: {{ aircraft.cruise_speed }} mph
         <br>
-        Fuel burn: {{ aircraft.fuel_burn}} lbs / mile
+        Fuel burn: {{ aircraft.fuel_burn}} lbs/mile
         <br>
+        Cost: ${{ aircraft.price_millions }}M 
         <br>
-        <button type="submit"
+        </div>
+        <p><button type="submit"
                 class="btn btn-primary"
                 name="clicked_aircraft"
                 value="{{ aircraft.id }}"
                 onclick="return confirm('Are you sure you want to add this aircraft to the fleet?');">
                 Add to fleet
-                </button>
-        </p>
+                </button></p>
         </div>
         </div>
         </div>

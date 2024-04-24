@@ -9,29 +9,34 @@
         <div class="container mt-4">
         <div class="row">
             {% for flight in flights %}
-            <div class="col-sm-12 col-md-6 mb-2">
-                    <div class="card shadow">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                {{ flight.number }}  Profit ${{ flight.profit }} 
-                                <br>
-                            </h5>
-                            <p class="card-text">
-                                Departed {{ flight.origin.location }} at {{ flight.act_departure_time }}
-                                <br>
-                                Arrived in {{ flight.destination.location }} at {{ flight.act_arrival_time }}
-                                <br>
-                                Distance flown: {{ flight.distance|floatformat:"0" }} miles
-                                <br>
-                                {{ flight.tickets_sold }} tickets sold at ${{ flight.ticket_price }} ea.
-                                <br>
-                                Revenue: ${{ flight.revenue|floatformat:"0" }}
-                                <br>
-                                Cost: ${{ flight.cost|floatformat:"0" }}
-                                <br>
-                                Final Rating: {{ flight.rating }}
-                        </div>
-                    </div>
+                <div class="col-sm-12 col-md-6 mb-2">
+                <div class="card shadow">
+                <div class="card-body">
+                <h5 class="card-title">
+                {{ flight.number }}  Profit ${{ flight.profit }} 
+                <br>
+                </h5>
+                <p class="card-text">
+                Departed {{ flight.origin.location }} at {{ flight.act_departure_time }}
+                <br>
+                Arrived in {{ flight.destination.location }} at {{ flight.act_arrival_time }}
+                <br>
+                Distance flown: {{ flight.distance|floatformat:"0" }} miles
+                <br>
+                {{ flight.tickets_sold }} tickets sold at ${{ flight.ticket_price }} ea.
+                <br>
+                Revenue: ${{ flight.revenue|floatformat:"0" }}
+                <br>
+                Total Cost: ${{ flight.cost|floatformat:"0" }}
+                <br>
+                ${{ flight.fuel_cost|floatformat:"0" }} (fuel)
+                <br>
+                ${{ flight.crew_cost|floatformat:"0" }} (crew)
+                <br>
+                <br>
+                Final Rating: {{ flight.rating }}
+                </div>
+                </div>
                 </div>
                 {% endfor %}
             </div>

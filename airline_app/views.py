@@ -7,7 +7,7 @@ from .models import Fleet
 from .models import Flight
 from .models import Aircraft
 from .models import AircraftFeedback
-from .forms import AirlineForm, FlightFormSet
+from .forms import AirlineForm, FleetFormSet, FlightFormSet
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponse
 from verify_email.email_handler import send_verification_email
@@ -60,9 +60,10 @@ def airline(request):
   print(f"{request=}")
   if request.method == 'POST':
     if 'submit' in request.POST:
-      post_form = AirlineForm(request.POST, airline)
+      post_form = AirlineForm(request.POST, instance=airline)
       print(f"{post_form=}")
-      # if post_form.is_valid():
+      if post_form.is_valid():
+        post_form.save()
     elif 'analytics' in request.POST:
       return redirect('airline_analytics')
   return render(request, 'airline/overview.html', {
@@ -126,15 +127,20 @@ def airline_analytics(request):
 
 @login_required
 def fleet(request):
-  loggedin_user_id = request.user.id
-  airline = Airline.objects.get(user_id=loggedin_user_id)
+  airline = get_current_airline(request)
   fleet = Fleet.objects.filter(airline=airline)
-  if request.method == 'GET':
-    return render(request, 'fleet/overview.html', {'fleet': fleet})
-  elif request.method == 'POST':
-    aircraft_id = request.POST.get('aircraft_id')
-    aircraft = Fleet.objects.get(id=aircraft_id)
-    return render(request, 'fleet/detail.html', {'aircraft': aircraft})
+  initial_formset = FleetFormSet(queryset=fleet)
+  initial_formset[-1].initial['airline'] = airline
+  if request.method == 'POST':
+    post_formset = FleetFormSet(request.POST)
+    if 'save' in request.POST:
+      for post_form in post_formset.forms:
+        if post_form.has_changed() and post_form.is_valid():
+          post_form.save()
+          return render(request, 'fleet/overview.html', {'formset': post_formset})
+    if 'clicked_fleet' in post_formset.forms:
+      print(f"_____CLICKED FLEET")
+  return render(request, 'fleet/overview.html', {'formset': initial_formset})
 
 
 @login_required
@@ -151,7 +157,6 @@ def flights(request):
       for post_form in post_formset.forms:
         if post_form.has_changed() and post_form.is_valid():
           post_form.save()
-    # return HttpResponse({airline})
     if 'submit' in request.POST:
       flights_to_process = Flight.objects.filter(airline=airline,
                                                  is_canceled=False)

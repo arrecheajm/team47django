@@ -1,33 +1,39 @@
-<!--
-- apr 15, 2024. Initial version.
--->
+<!-- fleet/overview.html-->
 
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container">
     <h1 class="pt-5">Fleet</h1>
-        <h5 class="lead">Manage the aircraft in your fleet.</h5>
-    <form method="post" action="{% url 'fleet' %}">  {% csrf_token %}
-        <div class="row pt-5">
-        {% for aircraft in fleet %}
-            <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+        <h5 class="lead">Manage aircraft in your fleet.</h5>
+    <form method="post">  {% csrf_token %}
+        <p><button type="submit" name="save" class="btn btn-primary">Save</button></p>
+        <div class="row pt-3">
+        {{ formset.management_form }}
+        {% for form in formset %}
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
             <div class="card-deck">
             <div class="card shadow">
-            <h4 class="card-header bg-primary text-white">{{ aircraft.registration }}</h4>
-            <p class="card-body">
-            Model: {{ aircraft.aircraft.model }}
-            <br>
-            Location: {{ aircraft.location.location }}
-            <br>
-            <input type="hidden" name="aircraft_id" value={{ aircraft.id }}>
-            <button type="submit" disabled class="btn btn-primary">Manage</button>
-            </p>
+            {% if form.empty_permitted %}
+            <h4 class="card-header bg-success text-white">NEW</h4>
+            {% else %}
+            <h4 class="card-header bg-primary text-white">{{ form.registration.value }}</h4>
+            {% endif %}
+            <div class="card-text p-3">
+            {{ form.as_p }}
+            <p><button type="submit"
+                class="btn btn-primary"
+                name="clicked_fleet"
+                value="{{ form.fleet.id }}"
+                   diabled>
+                Details
+                </button></p>
+            </div>
             </div>
             </div>
             </div>
         {% endfor %}
-            </div>
+        </div>
     </form>
     </div>
 {% endblock %}
