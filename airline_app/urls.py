@@ -46,7 +46,7 @@ urlpatterns = [
     path("aircraft/feedback/",
          views.AircraftFeedbackView,
          name='aircraft_feedback'),
-    path('fleet/overview', views.fleet, name='fleet'),
+    path('fleet/overview/', views.fleet, name='fleet'),
     path('verification/', include('verify_email.urls')),
     path('about_team/', views.about_team, name='about_team'),
     path('onboarding/', views.onboarding, name='onboarding'),

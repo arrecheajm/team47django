@@ -63,6 +63,9 @@ def random_aircraft_registration_generator():
   suffix = ''.join(random.choice(letters) for _ in range(5))
   return prefix + suffix
 
+def airline_active_fleet(self, airline=None):
+  return self.Fleet.objects.filter('airline'==airline, 'is_active'==True)
+  
 
 class AirlineCost(models.Model):
   flight_hours_year = models.FloatField(default=800.00,
@@ -211,9 +214,19 @@ class Airline(models.Model):
 
 
 class Fleet(models.Model):
-  # Registration #TODO override save and write it there.
   registration = models.CharField(
-      max_length=8, default=random_aircraft_registration_generator)
+      max_length=8,
+      default=random_aircraft_registration_generator,
+      help_text='''<br>A code unique to a single aircraft and
+      marked on it's exterior.''',
+  )
+  is_active = models.BooleanField(
+      default=True,
+      verbose_name='Active',
+      help_text=
+      '''<br>Designates whether this fleet aircraft should be treated as active.
+        Uncheck instead of deleting aircarft.''',
+  )
   # A fleet aircraft must be linked to a airline.
   # A 1-to-many relationship i.e. A fleet aircraft belongs to only one airline,
   # but an airline may have zero or more fleet aircraft.
@@ -312,7 +325,7 @@ class Flight(models.Model):
   # 1 = perfect
   # 0 = everyone is dead
   rating = models.DecimalField(max_digits=4, decimal_places=3, default=0.75)
-
+  
   # DERIVED FIELDS (not stored in db)
   def profit(self):
     return f"{round(self.revenue - self.cost, 2):,}"

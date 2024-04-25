@@ -24,6 +24,7 @@ from django.forms import modelformset_factory
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Avg, Sum, Count, F
 from django.db.models.functions import TruncDay
+from datetime import datetime, timedelta
 
 
 def get_current_airline(request):
@@ -74,33 +75,69 @@ def airline(request):
 
 @login_required
 def airline_analytics(request):
+
+  # ***** Airline Data *****
   # Get airline
-  airline = airline = get_current_airline(request)
+  airline = get_current_airline(request)
+  aircrafts = Aircraft.objects.all()
+
+  # Calculate date
+  current_day = airline.current_day
+  analytics_start_day = current_day - 30
 
   # Get flights
-  # flights = Flight.objects.filter(airline=airline, day__gt=thirty_days_ago, day__lte=current_day)
-  flights = Flight.objects.all()  #****CHANGE TO SPECIFIC AIRLINE****
-  # Dates for calculations
-  current_day = airline.current_day
-  thirty_days_ago = current_day - 30
+  # flights = Flight.objects.filter(is_complete=True, airline=airline, day__gt=analytics_start_day, day__lte=current_day)
+  flights = Flight.objects.all()
+  # flights = Flight.objects.filter(airline=airline, day__gt=analytics_start_day, day__lte=current_day)  #****CHANGE TO SPECIFIC AIRLINE****  # Dates for calculations
 
-  #Metrics
-  # flights_completed = flights.filter(
-  #     is_complete=True).select_related('aircraft')
-  # average_distance = flights_completed.aggregate(
-  #     Avg('distance'))['distance__avg']
-  # total_revenue = flights_completed.aggregate(Sum('revenue'))['revenue__sum']
-  # total_cost = flights_completed.aggregate(Sum('cost'))['cost__sum']
-  # profit = total_revenue - total_cost if total_revenue and total_cost else 0
-  # # load_factor = flights_completed.aggregate(load_factor=Avg('tickets_sold') /Avg('aircraft__seats'))
+  # ***** Metrics Calcualtion *****
 
-  average_distance = flights.aggregate(Avg('distance'))['distance__avg']
-  total_revenue = flights.aggregate(Sum('revenue'))['revenue__sum']
-  total_cost = flights.aggregate(Sum('cost'))['cost__sum']
-  profit = total_revenue - total_cost if total_revenue and total_cost else 0
-  # load_factor = flights.aggregate(load_factor=Avg('tickets_sold') / Avg('aircraft__seats'))
+  #Operation Performance
+  performance_data = {}
+  #Flights Completed
+  # performance_data['number_flights_completed'] = flights.filter(is_complete=True).count()
+  performance_data['number_flights_completed'] = flights.count()
+  #Average Distance
+  performance_data['average_distance'] = flights.aggregate(
+      Avg('distance'))['distance__avg']
 
-  # Aggregate data for charts
+  #Revenue $ Costs
+  performance_data['total_revenue'] = flights.aggregate(
+      Sum('revenue'))['revenue__sum']
+  performance_data['total_cost'] = flights.aggregate(Sum('cost'))['cost__sum']
+  performance_data['profitability'] = performance_data[
+      'total_revenue'] - performance_data['total_cost']
+  number_of_delayed_flights = 0
+  # #Load Factor
+  for flight in flights:
+    tickets_sold = flight.tickets_sold
+    total_seats = flight.aircraft.aircraft.seats  # Make sure 'aircraft' is the related name for the Aircraft model
+    flight.load_factor = (tickets_sold / total_seats
+                          ) * 100 if total_seats else 0  # Flight load factor
+    flight.profit = flight.revenue - flight.cost  # Flight profit
+    now = datetime.now()
+    act_time = datetime.combine(now.date(), flight.act_departure_time)
+    sched_time = datetime.combine(now.date(), flight.sch_departure_time)
+
+    # Check if the actual departure time is at least 15 minutes later than scheduled time
+    flight.delayed = (act_time - sched_time > timedelta(minutes=15))
+    if flight.delayed:
+      number_of_delayed_flights += 1
+
+  total_load_factor = sum(flight.load_factor for flight in flights)
+  average_load_factor = total_load_factor / len(flights) if flights else 0
+  performance_data['average_load_factor'] = average_load_factor
+
+  # Flight Performance
+  performance_data['cancelled_flights'] = flights.filter(
+      is_canceled=True).count()
+  performance_data['delayed_flights'] = number_of_delayed_flights
+  performance_data['delay_rate'] = (
+      performance_data['delayed_flights'] /
+      performance_data['number_flights_completed'])
+  performance_data['average_flight_rating'] = flights.aggregate(Avg('rating'))
+
+  # # Aggregate data for charts
   daily_flights = flights.values('day').annotate(
       count=Count('id')).order_by('day')
   destination_distribution = flights.values('destination').annotate(
@@ -109,50 +146,70 @@ def airline_analytics(request):
   print(f"{request=}")
   # if request.method == 'POST':
 
-  return render(
-      request,
-      'airline/analytics.html',
-      {
-          'airline_obj': airline,
-          'flights': flights,
-          'average_distance': average_distance,
-          'total_revenue': total_revenue,
-          'total_cost': total_cost,
-          'profit': profit,
-          # 'load_factor': load_factor,
-          'daily_flights': list(daily_flights),
-          'destination_distribution': list(destination_distribution)
-      })
+  context = {
+      'airline': airline,
+      'flights': flights,
+      'performance_data': performance_data,
+      'daily_flights': list(daily_flights),
+      'destination_distribution': list(destination_distribution)
+  }
+
+  return render(request, 'airline/analytics.html', context)
 
 
 @login_required
 def fleet(request):
+  # print(f'\n{request.GET=}')
+  # print(f'\n{request.POST=}')
+  # print(f"\nPOST...{request.POST.get('only_active_switch')=}")
+  only_active = request.POST.get('only_active_switch')
+  # print(only_active)
   airline = get_current_airline(request)
-  fleet = Fleet.objects.filter(airline=airline)
-  initial_formset = FleetFormSet(queryset=fleet)
-  initial_formset[-1].initial['airline'] = airline
-  if request.method == 'POST':
-    post_formset = FleetFormSet(request.POST)
-    if 'save' in request.POST:
-      for post_form in post_formset.forms:
-        if post_form.has_changed() and post_form.is_valid():
-          post_form.save()
-          return render(request, 'fleet/overview.html', {'formset': post_formset})
-    if 'clicked_fleet' in post_formset.forms:
-      print(f"_____CLICKED FLEET")
-  return render(request, 'fleet/overview.html', {'formset': initial_formset})
+  if only_active:
+    fleet = Fleet.objects.filter(airline=airline)
+  else:
+    fleet = Fleet.objects.filter(airline=airline, is_active=True)
+  if not fleet:
+    formset = None
+  else:
+    formset = FleetFormSet(queryset=fleet)
+  context = {'formset': formset, 'only_active_switch': only_active}
+  if request.method == 'GET':
+    return render(request, 'fleet/overview.html', context)
+  elif request.method == 'POST':
+    # if 'only_active_switch' in request.POST:
+    if 'add' in request.POST:
+      print('add')
+      return redirect('aircraft')
+    elif 'save' in request.POST:
+      formset = FleetFormSet(request.POST)
+      if formset.is_valid():
+        print(f'{formset.is_valid()=}')
+        print(f'{formset.has_changed()=}')
+        formset.save()
+      context = {'formset': formset, 'only_active_switch': only_active}
+      return render(request, 'fleet/overview.html', context)
+    elif 'details' in request.POST:
+      print(f"details")
+      id = request.POST.get('details')
+      fleet_aircraft = Fleet.objects.get(id=id)
+      print(fleet_aircraft)
+      return redirect('fleet')
+    else:
+      context = {'formset': formset, 'only_active_switch': only_active}
+      return render(request, 'fleet/overview.html', context)
 
 
 @login_required
 def flights(request):
   airline = get_current_airline(request)
   flights = Flight.objects.filter(airline=airline)
-  initial_formset = FlightFormSet(queryset=flights)
+  initial_formset = FlightFormSet(queryset=flights, airline=airline)
   # [-1] is the extra form's index
   initial_formset[-1].initial['airline'] = airline
   # POST
   if request.method == 'POST':
-    post_formset = FlightFormSet(request.POST)
+    post_formset = FlightFormSet(request.POST, airline=airline)
     if 'save' in request.POST or 'submit' in request.POST:
       for post_form in post_formset.forms:
         if post_form.has_changed() and post_form.is_valid():
@@ -311,27 +368,41 @@ def send_welcome_email(request):
   subject = 'Welcome to Virtual Airline'
 
   message = f'''
-  Welcome to the skies of Virtual Airline, {username}! Your account has been successfully created, and we’re excited to have you with us. You are now ready to navigate the complexities of airline management and take your understanding of the aviation industry to new heights.
-
+  <p>
+  Welcome to the skies of Virtual Airline, {username}!
+  </p>
+  Your account has been successfully created, and we’re excited to have you with us. You are now ready to navigate the complexities of airline management and take your understanding of the aviation industry to new heights.
+  <p>
   <b>Getting Started</b>
   To kick off your journey, we’ve put together a few tips to help you take full advantage of all the features available:
-  - <b>Create Your First Flight:</b> Dive right into the simulation by scheduling your first flight. Visit your dashboard to get started.
-  - <b>Explore the Fleet:</b> Check out our diverse range of aircraft and select the one that best fits your strategy.
-  - <b>Simulation Guide:</b> Familiarize yourself with the ins and outs of the airline industry with our detailed simulation guide available <a href="https://33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev/about_team/">here</a>.
-
+  <ul>
+  <li><b>Create Your First Flight:</b> Dive right into the simulation by scheduling your first flight. Visit your dashboard to get started.</li>
+  <li><b>Explore the Fleet:</b> Check out our diverse range of aircraft and select the one that best fits your strategy.</li>
+  <li><b>Simulation Guide:</b> Familiarize yourself with the ins and outs of the airline industry with our detailed simulation guide available <a href="https://33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev/about_team/">here</a>.</li>
+  </ul>
+  <p>
   <b>Need Assistance?</b>
+  <br>
   Our support team is here to help you every step of the way. If you have any questions or need assistance, feel free to reach out via our <a href="https://33d2bef9-e4ad-48f3-9b55-d893e9b7764c-00-ft2ur0tp22md.worf.replit.dev/about_team/">Support Center</a>.
-
+  </p>
+  <p>
   Thank you for choosing Virtual Airline. We can’t wait to see how high you’ll soar.
-
+  </p>
   Happy flying!
-
+  <br>
   The Virtual Airline Team
   '''
 
   from_email = f'Airline Admin <{DEFAULT_FROM_EMAIL}>'
   recipient_list = [request.POST.get('email')]
-  send_mail(subject, message, from_email, recipient_list, fail_silently=True)
+  send_mail(
+      subject,
+      message,
+      from_email,
+      recipient_list,
+      html_message=message,
+      fail_silently=True,
+  )
 
 
 '''

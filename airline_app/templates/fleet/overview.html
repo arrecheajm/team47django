@@ -6,8 +6,21 @@
     <div class="container">
     <h1 class="pt-5">Fleet</h1>
         <h5 class="lead">Manage aircraft in your fleet.</h5>
-    <form method="post">  {% csrf_token %}
-        <p><button type="submit" name="save" class="btn btn-primary">Save</button></p>
+    <form id="form" method="post">  {% csrf_token %}
+            <div class="col-lg-3 col-md-3 col-sm-1 m-3">
+            <div class="form-check form-switch">
+            <input class="lead form-check-input" 
+                type="checkbox"
+                name="only_active_switch"
+                id="only_active_switch"
+                {% if only_active_switch %}checked{% endif %}>
+            <label class="form-check-label" for="only_active_switch">Include inactive aircraft</label>
+            </div>
+         </div>
+        {% if formset != None %}
+            <p><button type="submit" name="save" class="btn btn-primary">Save</button>
+        {% endif %}
+        <button type="submit" name="add" class="btn btn-danger">Add Aircraft</button></p>
         <div class="row pt-3">
         {{ formset.management_form }}
         {% for form in formset %}
@@ -23,9 +36,8 @@
             {{ form.as_p }}
             <p><button type="submit"
                 class="btn btn-primary"
-                name="clicked_fleet"
-                value="{{ form.fleet.id }}"
-                   diabled>
+                name="details"
+                value="{{ form.id.value }}">
                 Details
                 </button></p>
             </div>
@@ -35,5 +47,11 @@
         {% endfor %}
         </div>
     </form>
+
+        <script>
+            document.getElementById('only_active_switch').addEventListener('change', function() {
+                document.getElementById('form').submit();
+            });
+        </script>
     </div>
 {% endblock %}

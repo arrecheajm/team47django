@@ -1,47 +1,42 @@
-<!--
-- apr 15, 2024. Initial version.
--->
+<!-- fleet/detail.html -->
 
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="p-5">{{ aircraft.registration }}</h1>
-    {% if user.is_authenticated %}
-        <div class="card" style="width: 24rem;">
-          <div class="card-body">
-            <div class="card-text">Airline: {{ aircraft.airline.name }}</div>
-            <div class="card-text">Model: {{ aircraft.aircraft.model }}</div>
-            <div class="card-text">Manufactured on: {{ aircraft.manufacture_date }}</div>
-            <div class="card-text">Operating hours: {{ aircraft.operating_hours }}</div>
-            <div class="card-text">Cycles: {{ aircraft.cycles }}</div>
-            <div class="card-text">Seats: {{ aircraft.aircraft.seats }}</div>
-            <div class="card-text">Range: {{ aircraft.aircraft.range }} miles</div>
-            <div class="card-text">Livery: {{ aircraft.livery_title }}</div>
-            <p class="card-text"> </p>
-            <h6 class="card-title">Scheduled Maintenance:</h6>
-            <div class="card-text">A-Check: {{ aircraft.next_a_check}} days</div>
-            <div class="card-text">B-Check: {{ aircraft.next_b_check}} days</div>
-            <div class="card-text">C-Check: {{ aircraft.next_c_check}} days</div>
-            <div class="card-text">D-Check: {{ aircraft.next_d_check}} days</div>
-            <p class="card-text"> </p>
-            <a href="overview" class="btn btn-primary">Back</a>
-              
-          </div>
+    <div class="container">
+        <h1 class="pt-5">Fleet Aircraft</h1>
+        <h5 class="lead pb-3">View details of an aircraft in your fleet.</h5>
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+        <div class="card-deck">
+        <div class="card shadow">
+        <h4 class="card-header bg-primary text-white">{{ aircraft.registration }}</h4>
+        <div class="card-text p-3">
+        <p>
+        Model: {{ aircraft.aircraft }}
+        <br>
+        Operating hours: {{ aircraft.operating_hours }}
+        <br>
+        Cycles: {{ aircraft.cycles }}
+        <br>
+        Location: {{ aircraft.location }}
+        <br>
+        Manufacture date: {{ aircraft.manufacture_date }}
+        <hr>
+        <h3 class="lead">Maintenance</h3>
+        Next A-Check in: {{ aircraft.next_a_check }} days
+        <br>
+        Next B-Check in: {{ aircraft.next_b_check }} days
+        <br>
+        Next C-Check in: {{ aircraft.next_a_check }} days
+        <br>
+        Next D-Check in: {{ aircraft.next_d_check }} days
+        </p>
+        <p><a href="overview" class="btn btn-primary">Back</a></p>
         </div>
-        <!-- <div class="container">
-            <div class="row">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-tital">+</h5>
-                            <a href="overview" class="btn btn-primary"Back</a>
-                        </div>
-                    </div>
-                
-            </div>
-        </div> -->
-    {% else %}
-        <p class="lead">You must be logged in to view this page</p>
-        <a href="{% url 'login' %}" class="btn btn-primary">LOGIN</a>
-    {% endif %}
-
+        </div>
+        </div>
+        </div>
+    </div>
 {% endblock %}
+
+            

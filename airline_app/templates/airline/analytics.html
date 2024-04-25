@@ -1,5 +1,4 @@
-<!-- airline/analytics.html -->
-<!-- Add these in the <head> section of your base template or directly in the analytics template -->
+<!-- airline/overview.html -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
@@ -17,7 +16,9 @@
                     <th>Origin</th>
                     <th>Destination</th>
                     <th>Distance</th>
-                    <th>Revenue</th>
+                    <th>Profit</th>
+                    <th>Load Factor</th>
+                    <th>Delayed</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,137 +28,39 @@
                     <td>{{ flight.origin }}</td>
                     <td>{{ flight.destination }}</td>
                     <td>{{ flight.distance }}</td>
-                    <td>{{ flight.revenue }}</td>
+                    <td>{{ flight.profit }}</td>
+                    <td>{{ flight.load_factor }}</td>
+                    <td>{{ flight.delayed }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+
+    <div class="container">
+    <h1 class="pt-5">Airline</h1>
+        <h5 class="lead">Customize your airline and view its analytics.</h5>
+    <div class="row pt-3">
+    <form method="post"> {% csrf_token %}
+        <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
+        <div class="card-deck">
+        <div class="card shadow">
+        <h4 class="card-header bg-info text-white">{{ airline.name }}</h4>
+        <div class="card-body">
+        <p class="lead">{{ performance_data}}</p>
+        <hr/> 
+        <p>{{ airline.as_p }}</p>
+        </div>
+        </div>
+    </form>
+    </div>
+ </div>
+
 <script>
     $(document).ready( function () {
         $('#flightsTable').DataTable();
     } );
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<div class="container">
-    <div class="row">
-        <div class="col-lg-6">
-            <canvas id="dailyFlightsChart"></canvas>
-        </div>
-        <div class="col-lg-6">
-            <canvas id="revenueCostChart"></canvas>
-        </div>
-        <div class="col-lg-6">
-            <canvas id="destinationChart"></canvas>
-        </div>
-    </div>
-</div>
-{{ revenue_cost_data|json_script:"revenueCostData" }}
-<script>
-    // Chart scripts
-    var dailyFlightsData = {{ daily_flights|safe }};
-  var revenueCostData = JSON.parse(document.getElementById('revenueCostData').textContent);
-    var destinationData = {{ destination_distribution|safe }};
-
-    // Initialize charts here using Chart.js
-    // Use the provided data variables to populate the charts
-    // Your Chart.js initialization code here
-  document.addEventListener('DOMContentLoaded', function() {
-      const dailyFlightsCtx = document.getElementById('dailyFlightsChart').getContext('2d');
-      const dailyFlightsChart = new Chart(dailyFlightsCtx, {
-          type: 'line', // or 'bar', depending on your preference
-          data: {
-              labels: dailyFlightsData.map(item => item.day), // Adjust according to actual data keys
-              datasets: [{
-                  label: 'Daily Flights',
-                  data: dailyFlightsData.map(item => item.count), // Adjust keys
-                  backgroundColor: 'rgba(75, 192, 235, 0.5)',
-                  borderColor: 'rgba(75, 192, 235, 1)',
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              scales: {
-                  y: {
-                      beginAtZero: true
-                  }
-              }
-          }
-      });
-
-    const revenueCostCtx = document.getElementById('revenueCostChart').getContext('2d');
-    const revenueCostChart = new Chart(revenueCostCtx, {
-        type: 'line',
-        data: {
-            labels: revenueCostData.labels,
-            datasets: [{
-                label: 'Total Revenue',
-                data: revenueCostData.revenues,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                fill: false
-            }, {
-                label: 'Total Costs',
-                data: revenueCostData.costs,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-      const destinationCtx = document.getElementById('destinationChart').getContext('2d');
-      const destinationChart = new Chart(destinationCtx, {
-          type: 'pie',
-          data: {
-              labels: destinationData.map(item => item.destination),
-              datasets: [{
-                  label: 'Flights by Destination',
-                  data: destinationData.map(item => item.total),
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.5)',
-                      'rgba(54, 162, 235, 0.5)',
-                      'rgba(255, 206, 86, 0.5)',
-                      'rgba(75, 192, 235, 0.5)',
-                      'rgba(153, 102, 255, 0.5)',
-                      'rgba(255, 159, 64, 0.5)'
-                  ],
-                  borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)',
-                      'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 235, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)'
-                  ],
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              responsive: true,
-              plugins: {
-                  legend: {
-                      position: 'top',
-                  },
-                  tooltip: {
-                      mode: 'index',
-                      intersect: false
-                  }
-              }
-          }
-      });
-  });
 </script>
 {% endblock %}
