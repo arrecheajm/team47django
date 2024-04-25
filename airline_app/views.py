@@ -203,7 +203,6 @@ def fleet(request):
 
 @login_required
 def flights(request):
-  # FORMSET NAME CHANGE BEGIN
   airline = get_current_airline(request)
   flights = Flight.objects.filter(airline=airline)
   
@@ -211,23 +210,14 @@ def flights(request):
       queryset=flights,
       airline=airline,
   )
-  # [-1] is the extra form. Triggers has_changed()
-  # formset[-1].initial['airline'] = airline
-  # POST
   if request.method == 'POST':
+    print(f'{request.POST=}')
     formset = FlightFormSet(request.POST, airline=airline)
-    if 'save' in request.POST or 'submit' in request.POST:
+    if 'save' in request.POST:
       for form in formset.forms:
         if form.has_changed() and form.is_valid():
-          instance = form.save(commit=False)
-          instance.airline = airline
           form.save()
-      # extra_form = formset.forms[-1]
-      # print(extra_form.has_changed())
-      # print(extra_form.is_valid())
-      # print('CHECK.///')
-      # print(extra_form.cleaned_data)
-      # print(extra_form.cleaned_data[''])
+      return redirect('flights')
 
     if 'submit' in request.POST:
       flights_to_process = Flight.objects.filter(airline=airline,
@@ -235,8 +225,6 @@ def flights(request):
       processed_flights = SimEngine.process_day(flights_to_process, airline)
       return render(request, 'flights/results.html',
                     {'flights': processed_flights})
-    elif 'save' in request.POST:
-      return redirect(reverse('flights'))
 
   # GET
   return render(request, 'flights/overview.html', {'formset': formset})
@@ -361,10 +349,20 @@ def register(request):
           costs=0.00,
           rating=0.750,
       )
-      Fleet.objects.create(
+      new_fleet = Fleet.objects.create(
           airline=new_airline,
           aircraft=Aircraft.objects.first(),
           location=Airport.objects.first(),
+      )
+      Flight.objects.create(
+          airline=new_airline,
+          aircraft=new_fleet,
+          origin=Airport.objects.first(),
+          destination=Airport.objects.last(),
+          day=new_airline.current_day,
+          sch_departure_time = '07:00',
+          sch_arrival_time = '11:00',
+          ticket_price = '150.00'
       )
 
       return render(request, 'onboarding.html', {'email': email})

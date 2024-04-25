@@ -11,8 +11,8 @@
         <h5 class="lead">Plan your flights and fly!</h5>
     <form method="post"> {% csrf_token %}
         <p>
-        <button type="submit" name="save" class="btn btn-primary">Save only</button> or
-        <button type="submit" name="submit" class="btn btn-warning">Save & fly</button>
+        <button type="submit" name="save" class="btn btn-primary">Save</button> or
+        <button type="submit" name="submit" class="btn btn-warning">Fly!</button>
         </p>
         <div class="row pt-3">
         {{ formset.management_form }}

@@ -37,6 +37,7 @@ class FlightForm(ModelForm):
 
   class Meta:
     model = Flight
+    # fields = '__all__'
     fields = [
         'airline',
         'number',
@@ -50,7 +51,7 @@ class FlightForm(ModelForm):
     ]
     widgets = {
         'airline': forms.HiddenInput(),
-        'is_canceled': forms.HiddenInput(),
+        # 'is_canceled': forms.HiddenInput(),
     }
 
   def __init__(self, *args, airline=None, **kwargs):
@@ -58,6 +59,8 @@ class FlightForm(ModelForm):
     if airline:
       self.fields['aircraft'].queryset = Fleet.objects.filter(
           airline=airline).filter(is_active=True)
+      #new
+      self.fields['airline'].initial = airline
 
 
 FlightFormSet = modelformset_factory(
