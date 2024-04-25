@@ -1,4 +1,5 @@
 # type: ignore
+from django.db.transaction import commit
 from .models import random_4digit_integer, random_aircraft_registration_generator, random_airline_designator_generator
 from .models import SimEngine
 from .models import Airport
@@ -202,18 +203,32 @@ def fleet(request):
 
 @login_required
 def flights(request):
+  # FORMSET NAME CHANGE BEGIN
   airline = get_current_airline(request)
   flights = Flight.objects.filter(airline=airline)
-  initial_formset = FlightFormSet(queryset=flights, airline=airline)
-  # [-1] is the extra form's index
-  initial_formset[-1].initial['airline'] = airline
+  
+  formset = FlightFormSet(
+      queryset=flights,
+      airline=airline,
+  )
+  # [-1] is the extra form. Triggers has_changed()
+  # formset[-1].initial['airline'] = airline
   # POST
   if request.method == 'POST':
-    post_formset = FlightFormSet(request.POST, airline=airline)
+    formset = FlightFormSet(request.POST, airline=airline)
     if 'save' in request.POST or 'submit' in request.POST:
-      for post_form in post_formset.forms:
-        if post_form.has_changed() and post_form.is_valid():
-          post_form.save()
+      for form in formset.forms:
+        if form.has_changed() and form.is_valid():
+          instance = form.save(commit=False)
+          instance.airline = airline
+          form.save()
+      # extra_form = formset.forms[-1]
+      # print(extra_form.has_changed())
+      # print(extra_form.is_valid())
+      # print('CHECK.///')
+      # print(extra_form.cleaned_data)
+      # print(extra_form.cleaned_data[''])
+
     if 'submit' in request.POST:
       flights_to_process = Flight.objects.filter(airline=airline,
                                                  is_canceled=False)
@@ -221,16 +236,10 @@ def flights(request):
       return render(request, 'flights/results.html',
                     {'flights': processed_flights})
     elif 'save' in request.POST:
-      print(f"{post_formset.errors=}")
-      if any(form_errors for form_errors in post_formset.errors):
-        print('errors')
-        return render(request, 'flights/overview.html',
-                      {'formset': post_formset})
-      else:
-        return redirect(reverse('flights'))
+      return redirect(reverse('flights'))
 
   # GET
-  return render(request, 'flights/overview.html', {'formset': initial_formset})
+  return render(request, 'flights/overview.html', {'formset': formset})
 
 
 def is_valid_queryparam(param):

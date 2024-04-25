@@ -50,11 +50,11 @@ class FlightForm(ModelForm):
     ]
     widgets = {
         'airline': forms.HiddenInput(),
+        'is_canceled': forms.HiddenInput(),
     }
 
   def __init__(self, *args, airline=None, **kwargs):
     super().__init__(*args, **kwargs)
-    print(airline)
     if airline:
       self.fields['aircraft'].queryset = Fleet.objects.filter(
           airline=airline).filter(is_active=True)

@@ -13,13 +13,8 @@
         Email verification sent to <p class="text-success">{{ email|default:"someone@domain.com" }}
         You must use the link to activate your account.
     </p>
-    {% if user.is_authenticated %}
-        <p class="lead">
-        </p>
-    {% else %}
-
-        <p class="lead">
-        </p>
-        You must be logged in to view this page.
-    {% endif %}
+    <p class="lead">
+        Start by 
+        <a href="{% url 'airline' %}">customizing your airline</a>
+    </p>
 {% endblock %}
