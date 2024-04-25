@@ -13,12 +13,26 @@ from .models import AircraftFeedback
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 from django.forms import BaseModelFormSet
+from django.core.validators import EmailValidator
+from django.contrib.auth.models import User
 
 
 class CustomUserCreationForm(UserCreationForm):
-
+  email = forms.EmailField(validators=[EmailValidator(message='Enter a valid email address.')])
+  
   class Meta(UserCreationForm.Meta):
     fields = UserCreationForm.Meta.fields + ("email", )
+
+  def clean_email(self):
+    email = self.cleaned_data.get('email')
+    if User.objects.filter(email=email).exists():
+      raise forms.ValidationError("This email address is already in use. Please use a different email.")
+    return email
+    
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.fields['username'].label = "Username:"
+    self.fields['username'].help_text = ""
 
 
 class BaseFlightFormSet(BaseModelFormSet):
