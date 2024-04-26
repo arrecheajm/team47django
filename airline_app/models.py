@@ -63,9 +63,10 @@ def random_aircraft_registration_generator():
   suffix = ''.join(random.choice(letters) for _ in range(5))
   return prefix + suffix
 
+
 def airline_active_fleet(self, airline=None):
-  return self.Fleet.objects.filter('airline'==airline, 'is_active'==True)
-  
+  return self.Fleet.objects.filter('airline' == airline, 'is_active' == True)
+
 
 class AirlineCost(models.Model):
   flight_hours_year = models.FloatField(default=800.00,
@@ -87,10 +88,18 @@ class AirlineCost(models.Model):
 
 class Economy(models.Model):
   # Jet-A (airliner fuel) price per lb in USD
-  gas_price = models.DecimalField(max_digits=10,
-                                  decimal_places=6,
-                                  default=1.100000,
-                                  verbose_name='Gas Price ($/lb)')
+  gas_price = models.FloatField(
+      default=1.100000,
+      verbose_name='Gas Price ($/lb)',
+  )
+  initial_ticket_price = models.FloatField(
+      default=300.00,
+      verbose_name='Initial ticket price ($/ticket)',
+  )
+  initial_pax_demand = models.FloatField(
+      default=400.00,
+      verbose_name='Initial PAX demand',
+  )
 
 
 class Airport(models.Model):
@@ -325,7 +334,7 @@ class Flight(models.Model):
   # 1 = perfect
   # 0 = everyone is dead
   rating = models.DecimalField(max_digits=4, decimal_places=3, default=0.75)
-  
+
   # DERIVED FIELDS (not stored in db)
   def profit(self):
     return f"{round(self.revenue - self.cost, 2):,}"

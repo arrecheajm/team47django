@@ -14,7 +14,7 @@
     <p class=lead><a href="{% url 'password_reset' %}">Password reset</a>
     If you forgot or lost your password, you can reset it.</p>
     <p class=lead><a href="{% url 'password_change' %}">Change password</a>
-    You can change your password for securcity reasons.</p>
+    You can change your password for security reasons.</p>
     {% if user.is_active is False %}
         <p class=lead><a href="{% url 'request-new-link-from-email' %}">Resend verification email</a></p>
     {% endif %}

@@ -9,10 +9,11 @@
 
 {% block content %}
     <div class="container">
-    <h1 class="p-5">Registration</h1>
+    <h1 class="pt-5">Registration</h1>
+        <h5 class="lead">Create an account to get started.</h5>
     <h3>{{ problem }}</h3>
     <form method="post"> {% csrf_token %}
-        <div class="mx-auto" style="width: 250px;">
+        <div class="mx-auto" style="width: 200px;">
         {{form.as_p}}
         <p><input type="submit" class="btn btn-primary mt-4 mb-4" value="Register"></p>
         </div>
