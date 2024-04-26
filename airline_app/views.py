@@ -23,7 +23,7 @@ import re
 from airline_app.forms import AircraftFeedbackForm
 from django.forms import modelformset_factory
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Avg, Sum, Count, F
+from django.db.models import F, ExpressionWrapper, FloatField, Avg, Sum, Count
 from django.db.models.functions import TruncDay
 from datetime import datetime, timedelta
 
@@ -109,7 +109,8 @@ def airline_analytics(request):
   performance_data['profitability'] = performance_data[
       'total_revenue'] - performance_data['total_cost']
   number_of_delayed_flights = 0
-  # #Load Factor
+
+  # Calculate per-flight load factor
   for flight in flights:
     tickets_sold = flight.tickets_sold
     total_seats = flight.aircraft.aircraft.seats  # Make sure 'aircraft' is the related name for the Aircraft model
@@ -125,9 +126,18 @@ def airline_analytics(request):
     if flight.delayed:
       number_of_delayed_flights += 1
 
+  # Load_Factor
   total_load_factor = sum(flight.load_factor for flight in flights)
   average_load_factor = total_load_factor / len(flights) if flights else 0
   performance_data['average_load_factor'] = average_load_factor
+  flights = flights.annotate(
+      load_factor=ExpressionWrapper(F('tickets_sold') * 100.0 /
+                                    F('aircraft__aircraft__seats'),
+                                    output_field=FloatField()))
+
+  load_factor_data = flights.values('day').annotate(
+      average_load_factor=Avg('load_factor')).order_by('day')
+  performance_data['load_factor_data'] = list(load_factor_data)
 
   # Flight Performance
   performance_data['cancelled_flights'] = flights.filter(
@@ -156,6 +166,8 @@ def airline_analytics(request):
   }
 
   return render(request, 'airline/analytics.html', context)
+
+
 
 
 @login_required
@@ -190,12 +202,12 @@ def fleet(request):
         formset.save()
       context = {'formset': formset, 'only_active_switch': only_active}
       return render(request, 'fleet/overview.html', context)
-    elif 'details' in request.POST:
-      print(f"details")
-      id = request.POST.get('details')
+    elif 'detail' in request.POST:
+      print(f"detail")
+      id = request.POST.get('detail')
       fleet_aircraft = Fleet.objects.get(id=id)
       print(fleet_aircraft)
-      return redirect('fleet')
+      return render(request, 'fleet/detail.html', {'aircraft': fleet_aircraft})
     else:
       context = {'formset': formset, 'only_active_switch': only_active}
       return render(request, 'fleet/overview.html', context)
