@@ -88,7 +88,9 @@ class AirlineCost(models.Model):
 
 class Economy(models.Model):
   # Jet-A (airliner fuel) price per lb in USD
-  gas_price = models.FloatField(
+  gas_price = models.DecimalField(
+      max_digits=12,
+      decimal_places=4,
       default=1.100000,
       verbose_name='Gas Price ($/lb)',
   )

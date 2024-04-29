@@ -88,7 +88,7 @@ def airline_analytics(request):
 
   # Get flights
   # flights = Flight.objects.filter(is_complete=True, airline=airline, day__gt=analytics_start_day, day__lte=current_day)
-  flights = Flight.objects.all()
+  flights = Flight.objects.filter(airline=airline)
   # flights = Flight.objects.filter(airline=airline, day__gt=analytics_start_day, day__lte=current_day)  #****CHANGE TO SPECIFIC AIRLINE****  # Dates for calculations
 
   # ***** Metrics Calcualtion *****
