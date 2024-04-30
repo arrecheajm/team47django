@@ -1,3 +1,12 @@
 {
-  "files": {}
+  "files": {
+    "manage.py": [
+      {
+        "id": "efa1907c-875e-46d4-a429-8ab3bfa43cf8",
+        "line": 23,
+        "version": 1,
+        "index": 670
+      }
+    ]
+  }
 }
